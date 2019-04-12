@@ -1,1 +1,8 @@
-runtime: python37
+application: tapeworm-bot
+version: 1
+runtime: python
+threadsafe: true
+
+handlers:
+- url: /.*
+  script: main.app

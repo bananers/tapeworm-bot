@@ -1,35 +1,63 @@
-# Copyright 2018 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+import logging
+import urllib
+import json
+import ConfigParser as configparser
 
-# [START gae_python37_app]
-from flask import Flask
+# standard app engine imports
+from google.appengine.api import urlfetch
+import webapp2
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-# If `entrypoint` is not defined in app.yaml, App Engine will look for an app
-# called `app` in `main.py`.
-app = Flask(__name__)
+BASE_URL = "https://api.telegram.org/bot"
 
+def parse_config(file="config.ini"):
+    config = configparser.ConfigParser()
+    config.read(file)
 
-@app.route('/')
-def hello():
-    """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+    return {
+        'token': config.get("bot", "token"),
+        'telegram_url': BASE_URL + config.get("bot", "token") + "/"
+    }
 
+class RequestHandlerWithConfig(webapp2.RequestHandler):
+    def initialize(self, request, response):
+        super(RequestHandlerWithConfig, self).initialize(request, response)
+        self.config = parse_config()
 
-if __name__ == '__main__':
-    # This is used when running locally only. When deploying to Google App
-    # Engine, a webserver process such as Gunicorn will serve the app. This
-    # can be configured by adding an `entrypoint` to app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
-# [END gae_python37_app]
+# Deserialise object and serialise it to JSON formatted string
+def formatResponse(obj):
+    parsed = json.load(obj)
+    return json.dumps(parsed, indent=4, sort_keys=True)
+
+def sendMessage(config, message, chat_id):
+    params = {
+        "chat_id": chat_id,
+        "text": message.encode("utf-8")
+    }
+
+    resp = urllib.urlopen(config["telegram_url"] + "sendMessage", urllib.urlencode(params)).read()
+
+class MeHandler(RequestHandlerWithConfig):
+    def get(self):
+        url = self.config['telegram_url'] + "getMe"
+        responseBuffer = urllib.urlopen(url)
+
+        self.response.headers["Content-Type"] = "text/json"
+        self.response.write(formatResponse(responseBuffer))
+
+class SetupHandler(RequestHandlerWithConfig):
+    def get(self):
+        logger.info("Setting up bot")
+
+        url = self.config["telegram_url"] + "getUpdates"
+        responseBuffer = urllib.urlopen(url)
+
+        self.response.headers["Content-Type"] = "text/json"
+        self.response.write(formatResponse(responseBuffer))
+
+app = webapp2.WSGIApplication([
+    ('/me', MeHandler),
+    ('/setup', SetupHandler)
+], debug=True)        
