@@ -1,4 +1,5 @@
 config.ini
+.vscode/
 
 # Created by https://www.gitignore.io/api/python,appengine
 # Edit at https://www.gitignore.io/?templates=python,appengine
