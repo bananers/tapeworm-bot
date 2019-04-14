@@ -40,9 +40,17 @@ def respondObj(obj):
     return json.dumps(obj, indent=4, sort_keys=True)
 
 def sendMessage(config, payload):
-    resp = urllib.urlopen(
-        config["telegram_url"] + "sendMessage", 
-        urllib.urlencode(payload)).read()
+    form_data = urllib.urlencode(payload)
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    try:
+        result = urlfetch.fetch(
+            config['telegram_url'] + 'sendMessage',
+            payload=form_data,
+            method=urlfetch.POST,
+            headers=headers
+        )
+    except urlfetch.Error:
+        logger.exception('Caught exception sending message')
 
 class MeHandler(RequestHandlerWithConfig):
     def get(self):
@@ -69,6 +77,7 @@ class MessageHandler(RequestHandlerWithConfig):
         logger.debug(body)
         if 'message' in body:
             res = handle_message(body['message'])
+            logger.debug(res)
             if res is not None:
                 sendMessage(self.config, res)
 

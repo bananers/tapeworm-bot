@@ -2,6 +2,7 @@ import logging
 import urllib
 
 from bs4 import BeautifulSoup
+from google.appengine.api import urlfetch
 
 from models import Link
 
@@ -29,7 +30,7 @@ def is_command_of(text, command):
 def find_all_url_types(message):
     if 'entities' not in message:
         return []        
-    return map(lambda x: message['text'][x['offset']:x['length']],
+    return map(lambda x: message['text'][x['offset']:x['offset'] + x['length']],
         filter(lambda x: x['type'] == 'url', message['entities']))
 
 def build_help_response(src):
@@ -44,20 +45,25 @@ I'm a bot that likes to gobble up links shared by users in the chat. Here's how 
         'disable_notification': True
     }
 
+def build_link_line(number, link):
+    return u'{0}. [{1}]({2}) by [{3}](tg://user?id={3})' \
+        .format(number, link.title, link.link, link.by)
+
 def build_recent_links(src, n=10):    
     links = Link.query_all().fetch(n)
     number = range(1, len(links)+1)
 
-    body = map(lambda x: "%d. [%s](%s) by [%d](tg://user?id=%d)" % (x[0], x[1].title, x[1].link, x[1].by, x[1].by),
+    body = map(lambda x: build_link_line(x[0], x[1]),
             zip(number, links))
 
+    body_full = u"\n".join(body)  
     return {
         'chat_id': src['chat']['id'],
-        'text': """
-*Last %d added links*
+        'text': u"""
+*Last {0} links added*
 
-%s
-        """ % (n, "\n".join(body)),
+{1}
+        """.format(n, body_full).encode('utf-8').strip(),
         'parse_mode': 'Markdown',
         'disable_notification': True,
         'disable_web_page_preview': True
@@ -76,12 +82,18 @@ def handle_message(message):
         return build_recent_links(message)
 
     url_entities = find_all_url_types(message)
-    if len(url_entities) > 0:        
+    if len(url_entities) > 0:                
         for url in url_entities:
-            body = BeautifulSoup(urllib.urlopen(url))
-            title = body.title.string
+            logger.debug("Finding title for %s" % url)
+            try:
+                res = urlfetch.fetch(url)
+                if res.status_code != 200:
+                    continue
+                body = BeautifulSoup(res.content)
+                title = (body.title.string if body.title is not None else url).strip()
 
-            link = Link(link=url, title=title, by=_get_from(message))
-            link.put()
-
+                link = Link(link=url, title=title, by=_get_from(message))
+                link.put()
+            except urlfetch.Error as e:
+                logger.exception('Exception while fetching ' + url)
     return None
