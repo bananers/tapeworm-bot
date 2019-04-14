@@ -64,7 +64,6 @@ def build_recent_links(src, n=10):
     }
 
 def handle_message(message):
-    logger.debug(message)
     if 'text' not in message:
         return None
         

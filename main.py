@@ -66,15 +66,14 @@ class MessageHandler(RequestHandlerWithConfig):
         logger.info("Received request: %s from %s" % (self.request.url, self.request.remote_addr))
 
         body = json.loads(self.request.body)
-        res = handle_message(body['message'])
-        if res is None:
-            logger.debug("Skipping messaging, res is None")
-            return
-        logger.info(res)
-        sendMessage(self.config, res)
+        logger.debug(body)
+        if 'message' in body:
+            res = handle_message(body['message'])
+            if res is not None:
+                sendMessage(self.config, res)
 
-        self.response.headers["Content-Type"] = "text/json"
-        self.response.write(respondObj(res))
+        self.response.status_int = 200
+        self.response.write("ok")
 
 class SetWebhookHandler(RequestHandlerWithConfig):
     def post(self):
