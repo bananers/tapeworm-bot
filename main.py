@@ -22,7 +22,8 @@ def parse_config(file="config.ini"):
 
     return {
         'token': config.get("bot", "token"),
-        'telegram_url': BASE_URL + config.get("bot", "token") + "/"
+        'telegram_url': BASE_URL + config.get("bot", "token") + "/",
+        'project_id': config.get("bot", "project_id")
     }
 
 class RequestHandlerWithConfig(webapp2.RequestHandler):
@@ -38,13 +39,10 @@ def formatResponse(obj):
 def respondObj(obj):
     return json.dumps(obj, indent=4, sort_keys=True)
 
-def sendMessage(config, message, chat_id):
-    params = {
-        "chat_id": chat_id,
-        "text": message.encode("utf-8")
-    }
-
-    resp = urllib.urlopen(config["telegram_url"] + "sendMessage", urllib.urlencode(params)).read()
+def sendMessage(config, payload):
+    resp = urllib.urlopen(
+        config["telegram_url"] + "sendMessage", 
+        urllib.urlencode(payload)).read()
 
 class MeHandler(RequestHandlerWithConfig):
     def get(self):
@@ -56,7 +54,8 @@ class MeHandler(RequestHandlerWithConfig):
 
 class GetUpdatesHandler(RequestHandlerWithConfig):
     def get(self):
-        url = self.config['telegram_url'] + "getUpdates"
+        offset = int(self.request.get("offset", default_value="0"))
+        url = self.config['telegram_url'] + "getUpdates?offset=%d" % (offset)
         responseBuffer = urllib.urlopen(url)
 
         self.response.headers["Content-Type"] = "text/json"
@@ -71,15 +70,53 @@ class MessageHandler(RequestHandlerWithConfig):
         if res is None:
             logger.debug("Skipping messaging, res is None")
             return
-            
-        sendMessage(self.config, res['text'], res['chat_id'])
+        logger.info(res)
+        sendMessage(self.config, res)
 
         self.response.headers["Content-Type"] = "text/json"
         self.response.write(respondObj(res))
+
+class SetWebhookHandler(RequestHandlerWithConfig):
+    def post(self):
+        hook_url = "https://%s.appspot.com/webhook_%s" % (self.config['project_id'], self.config['token'])
+        logger.info('Setting webhook url to %s' % hook_url)
+
+        url = self.config['telegram_url'] + "setWebhook"
+        responseBuffer = urllib.urlopen(url, urllib.urlencode({
+            'url': hook_url,
+            'max_connections': 2,
+            'allowed_updates': ['message']
+        }))
+
+        self.response.headers["Content-Type"] = "text/json"
+        self.response.write(formatResponse(responseBuffer))
+
+class RemoveWebhookHandler(RequestHandlerWithConfig):
+    def post(self):
+        logger.info("Removing webhook")
+
+        url = self.config['telegram_url'] + 'deleteWebhook'
+        res = urllib.urlopen(url).read()
+
+        self.response.headers["Content-Type"] = "text/plain"
+        self.response.write(res)
+
+class WebhookInfoHandler(RequestHandlerWithConfig):
+    def get(self):
+        logger.info("Getting webhook info")
+
+        url = self.config['telegram_url'] + 'getWebhookInfo'
+        res = urllib.urlopen(url)
+
+        self.response.headers["Content-Type"] = "text/json"
+        self.response.write(formatResponse(res))
 
 config = parse_config()
 app = webapp2.WSGIApplication([
     ('/me', MeHandler),
     ('/updates', GetUpdatesHandler),
+    ('/set_webhook', SetWebhookHandler),
+    ('/remove_webhook', RemoveWebhookHandler),
+    ('/info_webhook', WebhookInfoHandler),
     ('/webhook_' + config['token'], MessageHandler)
 ], debug=True)        
