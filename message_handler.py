@@ -1,10 +1,7 @@
 import logging
 import urllib
 
-from bs4 import BeautifulSoup
-from google.appengine.api import urlfetch
-
-from models import Link
+# from utils import create_links_from_message
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -80,20 +77,8 @@ def handle_message(message):
         return build_help_response(message)
     elif is_command_of(text, "links"):
         return build_recent_links(message)
-
-    url_entities = find_all_url_types(message)
-    if len(url_entities) > 0:                
-        for url in url_entities:
-            logger.debug("Finding title for %s" % url)
-            try:
-                res = urlfetch.fetch(url)
-                if res.status_code != 200:
-                    continue
-                body = BeautifulSoup(res.content)
-                title = (body.title.string if body.title is not None else url).strip()
-
-                link = Link(link=url, title=title, by=_get_from(message))
-                link.put()
-            except urlfetch.Error as e:
-                logger.exception('Exception while fetching ' + url)
+    
+    # url_entities = find_all_url_types(message)
+    # create_links_from_message(url_entities) <- call .put() on all values from this method
+    
     return None
