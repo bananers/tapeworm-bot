@@ -1,4 +1,4 @@
-from google.appengine.ext import ndb
+from google.cloud import datastore
 
 class Link(ndb.Model):
     link = ndb.StringProperty()

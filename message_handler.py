@@ -2,6 +2,7 @@ import logging
 import urllib
 
 # from utils import create_links_from_message
+from services import fetch_last_n_links
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -47,7 +48,7 @@ def build_link_line(number, link):
         .format(number, link.title, link.link, link.by)
 
 def build_recent_links(src, n=10):    
-    links = Link.query_all().fetch(n)
+    links = list(fetch_last_n_links(n))
     number = range(1, len(links)+1)
 
     body = map(lambda x: build_link_line(x[0], x[1]),
