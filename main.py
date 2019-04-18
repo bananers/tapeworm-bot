@@ -9,13 +9,6 @@ from flask import Flask, request
 from message_handler import handle_message
 from utils import parse_config
 
-def is_running_in_gae():
-    return 'GAE_SERVICE' in os.environ
-
-if is_running_in_gae():
-    from requests_toolbelt.adapters import appengine
-    appengine.monkeypatch()
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
