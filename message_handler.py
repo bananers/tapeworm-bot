@@ -1,8 +1,9 @@
 import logging
-import urllib
+import requests
 
-# from utils import create_links_from_message
-from services import fetch_last_n_links
+from bs4 import BeautifulSoup
+
+from services import fetch_last_n_links, create_link, insert_links
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -67,6 +68,52 @@ def build_recent_links(src, n=10):
         'disable_web_page_preview': True
     }
 
+def create_links_from_message(message, url_entities):
+    skipped_urls = []
+    added_urls = []                
+    for url in url_entities:
+        logger.debug("Finding title for %s", url)
+
+        res = requests.get(url)
+        if res.status_code != requests.codes.ok:
+            logger.debug("Unable to retrieve contents of %s got %d", url, res.status_code)
+            skipped_urls.append(url)
+            continue
+
+        body = BeautifulSoup(res.text)
+        title = (body.title.string if body.title is not None else url)
+        if not title:
+            title = url
+
+        link = create_link(url, title.strip(), _get_from(message))
+        added_urls.append(link)
+    return (skipped_urls, added_urls)
+
+def build_add_link_response(message, skipped_urls, added_urls):
+    added_titles = list(map(lambda x: x.title.strip(), added_urls))
+
+    skipped_urls_by_nl = "\n".join(skipped_urls)
+    skipped_url_response = f"*Skipped urls*\n{skipped_urls_by_nl}" if len(skipped_urls) > 0 else ""
+
+    number = range(1, len(added_urls)+1)
+    link_line = lambda x: f"{x[0]}. [{x[1].title}]({x[1].link})"
+    body = map(link_line,
+            zip(number, added_urls))
+    body_full = u"\n".join(body)  
+
+    links_added_response = f"*{len(added_titles)} Links added*\n{body_full}" if len(added_titles) > 0 else ""
+    return {
+        'chat_id': message['chat']['id'],
+        'text': u"""
+{0}
+
+{1}        
+        """.format(skipped_url_response, links_added_response).encode('utf-8').strip(),
+        'parse_mode': 'Markdown',
+        'disable_notification': True,
+        'disable_web_page_preview': True
+    }
+
 def handle_message(message):
     if 'text' not in message:
         return None
@@ -79,7 +126,9 @@ def handle_message(message):
     elif is_command_of(text, "links"):
         return build_recent_links(message)
     
-    # url_entities = find_all_url_types(message)
-    # create_links_from_message(url_entities) <- call .put() on all values from this method
-    
+    url_entities = find_all_url_types(message)
+    skipped_urls, added_urls = create_links_from_message(message, url_entities)
+    insert_links(added_urls)
+    return build_add_link_response(message, skipped_urls, added_urls)
+
     return None
