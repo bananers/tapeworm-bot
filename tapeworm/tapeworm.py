@@ -32,7 +32,7 @@ def get_webhook_info():
 def get_latest_messages():
     offset = request.args.get('offset', 0)
     return proxy_request_as_flask_response(
-        config['telegram_url'] + 'getUpdates',
+        current_app.config['TG_URL'] + 'getUpdates',
         {'offset': offset})
 
 @bp.route('/webhook', methods=['POST', 'DELETE'])
