@@ -3,7 +3,7 @@ import requests
 
 from bs4 import BeautifulSoup
 
-from services import fetch_last_n_links, create_link, insert_links
+from .services import fetch_last_n_links, create_link, insert_links
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
