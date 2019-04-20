@@ -5,7 +5,7 @@ import os
 import requests
 import configparser
 
-from flask import Flask, request
+from flask import Blueprint, request
 from pathlib import Path
 
 from .message_handler import handle_message
@@ -13,6 +13,12 @@ from .utils import parse_config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+bp = Blueprint('telegram', __name__)
+
+@bp.route('/')
+def index():
+    return 'ok'
 
 app = Flask(__name__)
 
@@ -26,6 +32,10 @@ def proxy_request_as_flask_response(url, params={}):
         status=200,
         mimetype='application/json'
     )
+
+@app.route("/", methods=['GET'])
+def index():
+    return "ok"
 
 @app.route('/me', methods=['GET'])
 def me():

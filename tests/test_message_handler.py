@@ -1,6 +1,11 @@
-import pytest
+from context import tapeworm
+import tapeworm.message_handler as mh
 
-from tapeworm import tapeworm
 
-@pytest.fixture
-def client():
+def test_help_response():
+    assert mh.handle_message({
+        'chat': {
+            'id': -1
+        },
+        'text': '/help'
+    }) is not None
