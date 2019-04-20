@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, g
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -15,6 +15,7 @@ def create_app(test_config=None):
     else:
         app.config.update(test_config)
 
+    app.config.update(TG_URL="https://api.telegram.org/bot" + app.config['TOKEN'] + '/')
     try:
         os.makedirs(app.instance_path)
     except OSError:
@@ -23,5 +24,8 @@ def create_app(test_config=None):
     @app.route('/')
     def hello():
         return 'ok'
+
+    from tapeworm import tapeworm
+    app.register_blueprint(tapeworm.bp)
 
     return app

@@ -7,3 +7,7 @@ def test_config():
 def test_hello(client):
     res = client.get("/")
     assert res.data == b'ok'
+
+def test_bot_me(client):
+    res = client.get("/me")
+    assert res.status_code == 200
