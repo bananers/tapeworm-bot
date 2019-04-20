@@ -19,6 +19,5 @@ def test_index():
     main.app.testing = True
     client = main.app.test_client()
 
-    r = client.get('/')
+    r = client.get('/me')
     assert r.status_code == 200
-    assert 'Hello World' in r.data.decode('utf-8')
