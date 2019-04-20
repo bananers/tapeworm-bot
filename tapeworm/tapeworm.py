@@ -8,7 +8,6 @@ from pathlib import Path
 from .message_handler import handle_message
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 bp = Blueprint('telegram', __name__)
 
