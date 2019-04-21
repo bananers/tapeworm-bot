@@ -75,8 +75,8 @@ def create_links_from_message(message, url_entities):
     for url in url_entities:
         logger.debug("Finding title for %s", url)
 
-        CHROME_60_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
-        res = requests.get(url, headers={ 'User-Agent': CHROME_60_UA })
+        UA='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
+        res = requests.get(url, headers={ 'User-Agent': UA })
         if res.status_code != requests.codes.ok:
             logger.debug("Unable to retrieve contents of %s got %d", url, res.status_code)
             skipped_urls.append((url, res.status_code))
