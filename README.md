@@ -30,13 +30,15 @@ This sets up your environment variables for local dev
 
 ## Configuration
 
-With that in place, you should then copy the provided `config-example.ini` to `config.ini` and replace the variables as necessary.
+This project follows the Flask method for [instance folders](http://flask.pocoo.org/docs/1.0/config/#instance-folders) so you should create an instance folder in the project root and copy `config-example.py` into `instance/config.py` replacing the variables as necessary.
 
-The `bot` variable is simply the token that BotFather provides to you when registering the bot.
-The `webhook_url_id` variable is simply a random string that the telegram calls to send new messages to. The reason for this variable is to prevent external parties (not Telegram) from calling the API with rubbish values. Although, an IP whitelist should preferably be added either on GAE or in the source code itself.
-The `project_id` variable is used when setting webhooks since we need a webhook endpoint for Telegram to call when setting the webhook. See the /webhook endpoint for more details in the code.
+The `bot` variable is the token that BotFather provided when registering the bot.
 
-If you're developing this only locally, you should not need the two latter variables since they are only used for setting up the webhook details.
+The `webhook_url_id` variable is a random string that Telegram calls when it receives new messages. The reason for this variable is to prevent external parties (not Telegram) from calling the API with rubbish values. However, an IP whitelist should be preferred atop of this.
+
+The `project_id` variable is used to create the webhook URL that Telegram would call and since this project runs on AppEngine, the base URL used for assembling the webhook URL is `https://project_id.appspot.com`
+
+The two latter variables are only applicable when the program is run in AppEngine since it doesn't apply when you are developing locally since Telegram requires a HTTPS endpoint and a public domain for webhook URLs.
 
 ## Simple logic extensions
 
