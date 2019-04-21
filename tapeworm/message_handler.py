@@ -2,6 +2,7 @@ import logging
 import requests
 
 from bs4 import BeautifulSoup
+from html import escape
 
 from .services import fetch_last_n_links, create_link, insert_links
 
@@ -44,8 +45,9 @@ I'm a bot that likes to gobble up links shared by users in the chat. Here's how 
     }
 
 def build_link_line(number, link):
-    return u'{0}. [{1}]({2}) by [{3}](tg://user?id={3})' \
-        .format(number, link.title, link.link, link.by)
+    title = f"<a href=\"{link.link}\">{escape(link.title)}</a>"
+    user = f"{link.by}"
+    return f"{number}. {title} by {user}"
 
 def build_recent_links(src, n=10):
     links = list(fetch_last_n_links(n))
@@ -58,11 +60,11 @@ def build_recent_links(src, n=10):
     return {
         'chat_id': src['chat']['id'],
         'text': u"""
-*Last {0} links added*
+<b>Last {0} links added</b>
 
 {1}
         """.format(n, body_full).encode('utf-8').strip(),
-        'parse_mode': 'Markdown',
+        'parse_mode': 'HTML',
         'disable_notification': True,
         'disable_web_page_preview': True
     }
