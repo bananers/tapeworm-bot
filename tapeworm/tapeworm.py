@@ -15,6 +15,13 @@ bp = Blueprint('telegram', __name__)
 def me():
     return proxy_request_as_flask_response(current_app.config['TG_URL'] + 'getMe')
 
+def as_json(payload):
+    return current_app.response_class(
+        response=json.dumps(payload),
+        status=200,
+        mimetype='application/json'
+    )
+
 def proxy_request_as_flask_response(url, params={}):
     res = requests.get(url, params=params)
     return current_app.response_class(
@@ -70,5 +77,7 @@ def webhook_message(url_id):
         if res is not None:
             logger.debug(res)
             sendMessage(current_app.config, res)
+            if current_app.config['DEBUG']:
+                return as_json(res)
 
     return "ok"
