@@ -59,9 +59,9 @@ def button(text, cb_data="links:noop"):
     }
 
 def reply_keyboard_markup(limit, offset):
-    can_move_left = offset > limit
-    left_button = button(f"<{limit}", f"links:less:{offset-limit}") if can_move_left else button("<0")
-    current_page = int(offset/10)
+    lower_limit = 0 if offset-limit < 0 else offset-limit
+    left_button = button(f"<{lower_limit}", f"links:less:{lower_limit}")
+    current_page = int(offset/10)+1
     return {
         'inline_keyboard': [
             [left_button, button(str(current_page)), button(f"{limit}>", f"links:more:{offset+limit}")]
