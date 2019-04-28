@@ -1,36 +1,34 @@
 import datetime
+import requests
+import logging
 
-from enum import Enum
-from collections import namedtuple
+from bs4 import BeautifulSoup
+from html import escape
 
-from google.cloud import datastore
+logger = logging.getLogger(__name__)
 
-class Kinds(Enum):
-    Link = 1
+def parse_link_contents(links):
+    parsed_links = []
+    error_links = []
 
-Link = namedtuple('Link', ['link', 'title', 'by', 'date'])
+    for link in links:
+        logger.debug("Finding title for %s", link)
 
-def _create_link_key(client):
-    return client.key(Kinds.Link.name)
+        UA='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
+        res = requests.get(link, headers={ 'User-Agent': UA })
+        if res.status_code != requests.codes.ok:
+            logger.debug("Unable to retrieve contents of %s got %d", link, res.status_code)
+            error_links.append((link, res.status_code))
+            continue
 
-def create_link(link, title, by, date=None):
-    d = datetime.datetime.utcnow() if date is None else date
-    return Link(link=link, title=title, by=by, date=d)
+        body = BeautifulSoup(res.text)
+        title = (body.title.string if body.title is not None else link)
+        if not title:
+            title = link
 
-def fetch_last_n_links(n):
-    client = datastore.Client()
-    query = client.query(kind=Kinds.Link.name, order=['-date'])
+        parsed_links.append({
+            'link': link.strip(),
+            'title': title.strip()
+        })
 
-    for r in query.fetch(limit=n):
-        yield create_link(r['link'], r['title'], r['by'], r['date'])
-
-def convert_link_to_entity(client, link):
-    key = _create_link_key(client)
-    entity = datastore.Entity(key=key)
-    entity.update(link._asdict())
-    return entity
-
-def insert_links(links):
-    client = datastore.Client()
-    entities = map(lambda x: convert_link_to_entity(client, x), links)
-    client.put_multi(entities)
+    return error_links, parsed_links

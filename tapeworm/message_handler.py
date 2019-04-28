@@ -3,8 +3,10 @@ import requests
 
 from bs4 import BeautifulSoup
 from html import escape
+from datetime import datetime
 
-from .services import fetch_last_n_links, create_link, insert_links
+from .model_link import list_links, from_dict, create_multi
+from .services import parse_link_contents
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +52,7 @@ def build_link_line(number, link):
     return f"{number}. {title} by {user}"
 
 def build_recent_links(src, n=10):
-    links = list(fetch_last_n_links(n))
+    links, _ = list_links(n)
     number = range(1, len(links)+1)
 
     body = map(lambda x: build_link_line(x[0], x[1]),
@@ -63,33 +65,25 @@ def build_recent_links(src, n=10):
 <b>Last {0} links added</b>
 
 {1}
-        """.format(n, body_full).encode('utf-8').strip(),
+        """.format(n, body_full),
         'parse_mode': 'HTML',
         'disable_notification': True,
         'disable_web_page_preview': True
     }
 
 def create_links_from_message(message, url_entities):
-    skipped_urls = []
-    added_urls = []
-    for url in url_entities:
-        logger.debug("Finding title for %s", url)
+    skipped_urls, added_urls = parse_link_contents(url_entities)
 
-        UA='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
-        res = requests.get(url, headers={ 'User-Agent': UA })
-        if res.status_code != requests.codes.ok:
-            logger.debug("Unable to retrieve contents of %s got %d", url, res.status_code)
-            skipped_urls.append((url, res.status_code))
-            continue
+    author = _get_from(message)
+    today = datetime.utcnow()
+    enhance_link = lambda x: from_dict(dict({
+        'by': author,
+        'date': today
+    }, **x))
+    added_urls_as_links = list(map(enhance_link, added_urls))
+    added_links = list(create_multi(added_urls_as_links))
 
-        body = BeautifulSoup(res.text)
-        title = (body.title.string if body.title is not None else url)
-        if not title:
-            title = url
-
-        link = create_link(url, title.strip(), _get_from(message))
-        added_urls.append(link)
-    return (skipped_urls, added_urls)
+    return skipped_urls, added_links
 
 def build_add_link_response(message, skipped_urls, added_urls):
     added_titles = list(map(lambda x: x.title.strip(), added_urls))
@@ -110,7 +104,7 @@ def build_add_link_response(message, skipped_urls, added_urls):
 {0}
 
 {1}
-        """.format(skipped_url_response, links_added_response).encode('utf-8').strip(),
+        """.format(skipped_url_response, links_added_response.strip()),
         'parse_mode': 'Markdown',
         'disable_notification': True,
         'disable_web_page_preview': True
@@ -130,7 +124,4 @@ def handle_message(message):
 
     url_entities = find_all_url_types(message)
     skipped_urls, added_urls = create_links_from_message(message, url_entities)
-    insert_links(added_urls)
     return build_add_link_response(message, skipped_urls, added_urls)
-
-    return None
