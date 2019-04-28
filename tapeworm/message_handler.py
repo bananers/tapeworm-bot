@@ -1,5 +1,6 @@
 import logging
 import requests
+import json
 
 from bs4 import BeautifulSoup
 from html import escape
@@ -51,24 +52,40 @@ def build_link_line(number, link):
     user = f"{link.by}"
     return f"{number}. {title} by {user}"
 
-def build_recent_links(src, n=10):
-    links, _ = list_links(n)
-    number = range(1, len(links)+1)
+def button(text, cb_data="links:noop"):
+    return {
+        'text': text,
+        'callback_data': cb_data
+    }
+
+def reply_keyboard_markup(limit, offset):
+    can_move_left = offset > limit
+    left_button = button(f"<{limit}", f"links:less:{offset-limit}") if can_move_left else button("<0")
+    current_page = int(offset/10)
+    return {
+        'inline_keyboard': [
+            [left_button, button(str(current_page)), button(f"{limit}>", f"links:more:{offset+limit}")]
+        ]
+    }
+
+def build_recent_links(limit=10, offset=0):
+    links = list_links(limit, offset)
+    number = range(offset+1, offset+len(links)+1)
 
     body = map(lambda x: build_link_line(x[0], x[1]),
             zip(number, links))
 
     body_full = u"\n".join(body)
     return {
-        'chat_id': src['chat']['id'],
         'text': u"""
 <b>Last {0} links added</b>
 
 {1}
-        """.format(n, body_full),
+        """.format(limit, body_full),
         'parse_mode': 'HTML',
         'disable_notification': True,
-        'disable_web_page_preview': True
+        'disable_web_page_preview': True,
+        'reply_markup': json.dumps(reply_keyboard_markup(limit, offset))
     }
 
 def create_links_from_message(message, url_entities):
@@ -120,8 +137,31 @@ def handle_message(message):
     elif is_command_of(text, "help"):
         return build_help_response(message)
     elif is_command_of(text, "links"):
-        return build_recent_links(message)
+        return dict({
+            'chat_id': message['chat']['id']
+        }, **build_recent_links())
 
     url_entities = find_all_url_types(message)
     skipped_urls, added_urls = create_links_from_message(message, url_entities)
     return build_add_link_response(message, skipped_urls, added_urls)
+
+def handle_callback_query(callback_query):
+    if 'data' not in callback_query:
+        return None
+
+    data = callback_query['data']
+    logger.debug(f"Parsing callback query {callback_query.keys()}")
+    if data.startswith("links:noop"):
+        return None
+    elif data.startswith("links:more") or data.startswith("links:less"):
+        args = data.split(":")
+        if len(args) < 3:
+            return None
+        if not args[2].isdigit():
+            return None
+
+        offset = int(args[2])
+        return dict({
+            'chat_id': callback_query['message']['chat']['id'],
+            'message_id': callback_query['message']['message_id']
+        }, **build_recent_links(10, offset))
