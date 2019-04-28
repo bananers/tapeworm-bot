@@ -165,3 +165,4 @@ def handle_callback_query(callback_query):
             'chat_id': callback_query['message']['chat']['id'],
             'message_id': callback_query['message']['message_id']
         }, **build_recent_links(10, offset))
+    return None
