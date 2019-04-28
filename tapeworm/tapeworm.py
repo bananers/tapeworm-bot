@@ -62,7 +62,29 @@ def webhook_settings():
 def sendMessage(config, payload):
     res = requests.post(config['TG_URL'] + 'sendMessage', data=payload)
     if res.status_code != requests.codes.ok:
-        logger.error(f'Failed to send message payload={payload}')
+        return False, {
+            'payload': payload,
+            'status_code': res.status_code,
+            'response': json.loads(res.text)
+        }
+    return True, None
+
+def send_response(payload):
+    if payload is None:
+        return "ok"
+
+    logger.debug(payload)
+    ok, err = sendMessage(current_app.config, payload)
+
+    if not ok and current_app.config['DEBUG']:
+        return as_json(err)
+    if not ok:
+        logger.error(err)
+        return "ok"
+
+    if current_app.config['DEBUG']:
+        return as_json(payload)
+    return "ok"
 
 @bp.route('/webhook_<url_id>', methods=['POST'])
 def webhook_message(url_id):
@@ -74,10 +96,5 @@ def webhook_message(url_id):
     logger.debug(body)
     if 'message' in body:
         res = handle_message(body['message'])
-        if res is not None:
-            logger.debug(res)
-            sendMessage(current_app.config, res)
-            if current_app.config['DEBUG']:
-                return as_json(res)
-
+        return send_response(res)
     return "ok"
