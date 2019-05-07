@@ -10,7 +10,7 @@ Before you can start, you will need to create a sandbox constraining the version
 
 This project uses a requirement.txt to store dependencies since AppEngine doesn't support the new Pipfile format. Shown below is the command you can use.
 
-`pip install -r requirements.txt`
+`pip install -r requirements/requirements-dev.txt`
 
 # Starting development
 
