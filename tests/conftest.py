@@ -1,15 +1,16 @@
+# pylint: disable=redefined-outer-name
+
 import pytest
 
-from context import tapeworm
+from .context import tapeworm
+
 
 @pytest.fixture
 def app():
-    app = tapeworm.create_app({
-        'TESTING': True,
-        'WEBHOOK_URL_ID': 'random_id'
-    })
+    create_app = tapeworm.create_app({"TESTING": True, "WEBHOOK_URL_ID": "random_id"})
 
-    yield app
+    yield create_app
+
 
 @pytest.fixture
 def client(app):
