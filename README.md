@@ -12,7 +12,7 @@ This project uses a requirement.txt to store dependencies since AppEngine doesn'
 
 `pip install -r requirements/requirements-dev.txt`
 
-# Starting development
+# Emulators
 
 Since this bot uses Cloud Datastore, you'll have to run an emulator to simulate the database insertions. Otherwise, you'll not be able to test anything that has to do with a database [more info](https://cloud.google.com/datastore/docs/tools/datastore-emulator).
 
@@ -28,6 +28,8 @@ This sets up your environment variables for local dev
 
 `gcloud beta emulators datastore env-init > set_vars.cmd && set_vars.cmd`
 
+# Developing
+
 ## Configuration
 
 This project follows the Flask method for [instance folders](http://flask.pocoo.org/docs/1.0/config/#instance-folders) so you should create an instance folder in the project root and copy `config-example.py` into `instance/config.py` replacing the variables as necessary.
@@ -40,10 +42,4 @@ The `project_id` variable is used to create the webhook URL that Telegram would 
 
 The two latter variables are only applicable when the program is run in AppEngine since it doesn't apply when you are developing locally since Telegram requires a HTTPS endpoint and a public domain for webhook URLs.
 
-## Simple logic extensions
-
-In the case where you want to develop extensions for purely logic IE: you only need the database and are not sending anything back to the messenger. You should be fine with just writing tests on the functions on `message_handler.py` as the functions pertaining to string handling are mostly pure except for the functions that need more details. There is a simple test written for the `/help` command that simply asserts that the response is not None.
-
-## More complicated changes
-
-In the case where you want to develop more complicated workflows like a back and forth game with the bot, you'll probably need to register a new token that doesn't interefere with the existing bot running in production. **TODO** See issue #1
+Now that you have the prerequisite tooling installed, you can get started by viewing the [docs folder](https://github.com/bananers/tapeworm-bot/tree/master/docs)
