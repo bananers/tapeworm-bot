@@ -105,12 +105,20 @@ def answerCallbackQuery(config, payload):
     return True, None
 
 
+def encode_payload(payload):
+    if "text" in payload:
+        payload["text"] = payload["text"].encode("utf-8")
+
+    return payload
+
+
 def send_response(payload, response_fn):
     if payload is None:
         return "ok"
 
     logger.debug(payload)
-    ok, err = response_fn(current_app.config, payload)
+    encoded_payload = encode_payload(payload)
+    ok, err = response_fn(current_app.config, encoded_payload)
 
     if not ok and current_app.config["DEBUG"]:
         return as_json(err)
@@ -119,7 +127,7 @@ def send_response(payload, response_fn):
         return "ok"
 
     if current_app.config["DEBUG"]:
-        return as_json(payload)
+        return as_json(encoded_payload)
     return "ok"
 
 

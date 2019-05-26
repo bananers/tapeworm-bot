@@ -19,7 +19,7 @@ def _get_from(message):
 
 
 def response_text(src, message):
-    return {"chat_id": src["chat"]["id"], "text": message.encode("utf-8")}
+    return {"chat_id": src["chat"]["id"], "text": message}
 
 
 def is_command(text):
