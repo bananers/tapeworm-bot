@@ -3,3 +3,4 @@ ipython
 httpie
 black
 pylint
+pytest-watch

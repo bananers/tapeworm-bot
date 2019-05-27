@@ -1,16 +1,16 @@
-tapeworm is a telegram bot that sits in a chat group silently gobbling up interesting information on the chat group. This application runs on AppEngine.
+tapeworm is a telegram bot that sits in a chat group silently gobbling up interesting information on the chat group built with AppEngine and DataStore.
 
 # Requirements
 
-Before you can start, you will need to create a sandbox constraining the version to python 3.7 since this runs on AppEngine. Shown below is an example of creating an environment constrained to Python 3.7.
+Before you can start, you will need to create a sandbox constraining the version to python 3.7. Shown below is an example of creating an environment constrained to Python 3.7.
 
 `conda create -n environment-name python=3.7`
 
-# Dependencies
-
 This project uses a requirement.txt to store dependencies since AppEngine doesn't support the new Pipfile format. Shown below is the command you can use.
 
-`pip install -r requirements/requirements-dev.txt`
+1. `pip install -r requirements/requirements-dev.txt`
+2. Install Google Cloud SDK [here](https://cloud.google.com/sdk/)
+3. You can skip the other steps that initialize a gcloud project
 
 # Emulators
 
@@ -20,7 +20,8 @@ Since this bot uses Cloud Datastore, you'll have to run an emulator to simulate 
 
 1. `gcloud components install cloud-datastore-emulator`
 2. `gcloud components install beta`
-3. `gcloud beta emulators datastore start`
+3. `gcloud config set project random-name` You need to do this if you don't have an existing project
+4. `gcloud beta emulators datastore start`
 
 You'll then need to expose the environment variables to get the library to talk to the local datastore.
 
@@ -43,3 +44,18 @@ The `project_id` variable is used to create the webhook URL that Telegram would 
 The two latter variables are only applicable when the program is run in AppEngine since it doesn't apply when you are developing locally since Telegram requires a HTTPS endpoint and a public domain for webhook URLs.
 
 Now that you have the prerequisite tooling installed, you can get started by viewing the [docs folder](https://github.com/bananers/tapeworm-bot/tree/master/docs)
+
+## Running the bot
+
+1. `set_vars.cmd`
+2. `python main.py`
+
+## Running tests
+
+If you just want to run all tests, you can do:
+
+`pytest tests`
+
+If you are using it for development and want tests to re-run automatically:
+
+`ptw tests`

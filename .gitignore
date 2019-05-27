@@ -1,5 +1,6 @@
 config.ini
 .vscode/
+set_vars.cmd
 
 # Created by https://www.gitignore.io/api/python,appengine
 # Edit at https://www.gitignore.io/?templates=python,appengine
