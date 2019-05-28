@@ -1,6 +1,4 @@
 -r ../requirements.txt
 ipython
 httpie
-black
-pylint
 pytest-watch
