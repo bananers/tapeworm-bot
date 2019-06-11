@@ -153,8 +153,10 @@ def handle_message(message):
         return dict({"chat_id": message["chat"]["id"]}, **build_recent_links())
 
     url_entities = find_all_url_types(message)
-    skipped_urls, added_urls = create_links_from_message(message, url_entities)
-    return build_add_link_response(message, skipped_urls, added_urls)
+    if url_entities:
+        skipped_urls, added_urls = create_links_from_message(message, url_entities)
+        return build_add_link_response(message, skipped_urls, added_urls)
+    return None
 
 
 def handle_callback_query(callback_query):
