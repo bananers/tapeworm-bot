@@ -106,8 +106,8 @@ def answerCallbackQuery(config, payload):
 
 
 def encode_payload(payload):
-    if "text" in payload:
-        payload["text"] = payload["text"].encode("utf-8")
+    # if "text" in payload:
+    #     payload["text"] = payload["text"].encode("utf-8")
 
     return payload
 
