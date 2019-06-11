@@ -25,18 +25,18 @@ def start_update_timer():
             res = requests.get(url)
             if res.status_code == 409:
                 logger.debug("You need to remove the pre-existing webhook from the bot")
-            body = res.json()
+            else:
+                body = res.json()
 
-            if body["ok"] and body["result"]:
-                update_ids = []
-                for update in body["result"]:
-                    update_ids.append(update["update_id"])
-                    requests.post(
-                        f"http://localhost:8080/webhook_{app.config['WEBHOOK_URL_ID']}",
-                        json=update,
-                    )
-                state.update(offset=max(update_ids) + 1)
-
+                if body["ok"] and body["result"]:
+                    update_ids = []
+                    for update in body["result"]:
+                        update_ids.append(update["update_id"])
+                        requests.post(
+                            f"http://localhost:8080/webhook_{app.config['WEBHOOK_URL_ID']}",
+                            json=update,
+                        )
+                    state.update(offset=max(update_ids) + 1)
             time.sleep(5)
 
     thread = threading.Thread(target=check_for_messages)
