@@ -1,11 +1,12 @@
 from collections import namedtuple
 from google.cloud import datastore
+from flask import current_app
 
 Link = namedtuple("Link", ["id", "link", "title", "by", "date"])
 
 
 def get_client():
-    return datastore.Client("tapeworm-bot")
+    return datastore.Client(current_app.config["PROJECT_ID"])
 
 
 def from_datastore(entity):
