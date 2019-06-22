@@ -4,16 +4,33 @@ class Incoming:
 
     @staticmethod
     def parse_message(data):
-        if is_command_of(_get_text(data), "ping"):
+        text = _get_text(data)
+        if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
+        if is_command_of(text, "help"):
+            return help_response(_get_chat_id(data))
         return None
 
     def handle_data(self, data):
         res = Incoming.parse_message(data)
         if res is None:
-            return
+            return {"status": "ok"}
 
-        self.telegram.send_text_response(res)
+        return {"status": "ok", "telegram": self.telegram.send_text_response(res)}
+
+
+def help_response(sender_chat_id):
+    return {
+        "chat_id": sender_chat_id,
+        "text": """
+I'm a bot that likes to gobble up links shared by users in the chat. Here's how you can use me.
+
+/links - Shows pages of links that I have gobbled
+/ping - Tests whether I'm alive
+""",
+        "parse_mode": "Markdown",
+        "disable_notification": True,
+    }
 
 
 def response_text(src, message):
