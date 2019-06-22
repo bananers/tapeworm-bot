@@ -3,8 +3,11 @@
 import logging
 import json
 import requests
-
+from injector import inject
 from flask import Blueprint, request, current_app
+
+from tapeworm.ext.telegram import TelegramService
+from tapeworm.incoming import Incoming
 from .message_handler import handle_message, handle_callback_query
 
 logger = logging.getLogger(__name__)
@@ -131,30 +134,33 @@ def send_response(payload, response_fn):
     return "ok"
 
 
+@inject
 @bp.route("/webhook_<url_id>", methods=["POST"])
-def webhook_message(url_id):
+def webhook_message(url_id, incoming: Incoming):
     if url_id != current_app.config["WEBHOOK_URL_ID"]:
         return "ok"
 
     logger.debug("Request from %s", request.remote_addr)
     body = json.loads(request.data)
     logger.debug(body)
-    if "message" in body:
-        res = handle_message(body["message"])
-        return send_response(res, sendMessage)
 
-    if "callback_query" in body:
-        answer_query_res = send_response(
-            {"callback_query_id": body["callback_query"]["id"]}, answerCallbackQuery
-        )
+    return incoming.handle_data(body)
 
-        res = handle_callback_query(body["callback_query"])
-        callback_query_res = send_response(res, editMessageText)
-        if current_app.config["DEBUG"]:
-            return as_json(
-                {
-                    "answer_query": answer_query_res.get_json(),
-                    "callback_query": callback_query_res.get_json(),
-                }
-            )
-    return "ok"
+    # if "message" in body:
+    #     res = handle_message(body["message"])
+    #     return send_response(res, sendMessage)
+
+    # if "callback_query" in body:
+    #     answer_query_res = send_response(
+    #         {"callback_query_id": body["callback_query"]["id"]}, answerCallbackQuery
+    #     )
+
+    #     res = handle_callback_query(body["callback_query"])
+    #     callback_query_res = send_response(res, editMessageText)
+    #     if current_app.config["DEBUG"]:
+    #         return as_json(
+    #             {
+    #                 "answer_query": answer_query_res.get_json(),
+    #                 "callback_query": callback_query_res.get_json(),
+    #             }
+    #         )
