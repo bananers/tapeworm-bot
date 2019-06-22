@@ -144,7 +144,7 @@ def webhook_message(url_id, incoming: Incoming):
     body = json.loads(request.data)
     logger.debug(body)
 
-    return incoming.handle_data(body)
+    return as_json(incoming.handle_data(body))
 
     # if "message" in body:
     #     res = handle_message(body["message"])

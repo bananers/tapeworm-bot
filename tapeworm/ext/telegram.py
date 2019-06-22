@@ -11,11 +11,11 @@ class TelegramService:
     def __init__(self, telegram_url):
         self.telegram_url = telegram_url
 
-    def send_text_response(self, res):
-        res = requests.post(self.telegram_url + "sendMessage", data=res)
+    def send_text_response(self, payload):
+        res = requests.post(self.telegram_url + "sendMessage", data=payload)
         res.raise_for_status()
         return {
-            "payload": res,
+            "payload": payload,
             "status_code": res.status_code,
             "response": json.loads(res.text),
         }
