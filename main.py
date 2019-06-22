@@ -48,18 +48,18 @@ def start_runner():
     def start_loop():
         not_started = True
         while not_started:
-            print("In start loop")
+            logger.debug("In start loop")
             try:
                 r = requests.get("http://localhost:8080/")
                 if r.status_code == 200:
-                    print("Server started, quiting start_loop")
+                    logger.debug("Server started, quitting start_loop")
                     not_started = False
-                print(r.status_code)
+                logger.debug("%d", r.status_code)
             except:
-                print("Server not yet started")
+                logger.debug("Server not started yet")
             time.sleep(2)
 
-    print("Started runner")
+    logger.debug("Started runner")
     thread = threading.Thread(target=start_loop)
     thread.daemon = True
     thread.start()
