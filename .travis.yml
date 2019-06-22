@@ -2,7 +2,9 @@ language: python
 
 sudo: required
 dist: xenial
-cache: pip
+cache:
+  directories:
+    - "$HOME/.cache/pip"
 
 python:
   - "3.7"
@@ -10,32 +12,20 @@ python:
 install:
   - pip install -r requirements.txt
 
-stages:
-  - lint
-  - test
-  - deploy
-
-jobs:
-  include:
-    - stage: lint
-      name: "black"
-      script: black --check tests tapeworm
-    - name: "Pylint"
-      script: "pylint tests tapeworm"
-    - stage: test
-      script: pytest
-    - stage: deploy
-      script: skip
-      deploy:
-        provider: gae
-        keyfile: "instance/service-account.json"
-        project: tapeworm-bot
-        skip_cleanup: true
-        on:
-          branch: master
-          tags: true
+script:
+  - black --check tests tapeworm
+  - pylint tests tapeworm
+  - pytest
 
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_89a54a178b1d_key -iv $encrypted_89a54a178b1d_iv -in instance.tar.enc -out instance.tar -d
   - tar xvf instance.tar
 
+deploy:
+  provider: gae
+  keyfile: "instance/service-account.json"
+  project: tapeworm-bot
+  skip_cleanup: true
+  on:
+    branch: master
+    tags: true
