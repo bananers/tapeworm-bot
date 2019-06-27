@@ -6,9 +6,7 @@ import requests
 from injector import inject
 from flask import Blueprint, request, current_app
 
-from tapeworm.ext.telegram import TelegramService
 from tapeworm.incoming import Incoming
-from .message_handler import handle_message, handle_callback_query
 
 logger = logging.getLogger(__name__)
 
