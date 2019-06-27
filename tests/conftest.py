@@ -35,6 +35,11 @@ def incoming(mocker):
 
 
 @pytest.fixture
+def faker():
+    return Faker()
+
+
+@pytest.fixture
 def telegram_message_generator():
     faker = Faker()
 

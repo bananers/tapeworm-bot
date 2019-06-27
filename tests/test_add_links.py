@@ -1,6 +1,6 @@
 import pytest
 
-from tapeworm.incoming import extract_links_from_message
+from tapeworm.incoming import extract_links_from_message, link_added_response
 from tapeworm.services import UnableToObtainTitleError
 from .conftest import telegram_message_with_links
 
@@ -91,3 +91,42 @@ def test_invalid_titles_have_response(incoming, telegram_message_generator):
 
     incoming.telegram.send_text_response.assert_called_once()
 
+
+@pytest.mark.parametrize(
+    "titles,expected",
+    [(["Hello"], "1. Hello"), (["link1", "link2"], "1. link1\n2. link2")],
+)
+def test_link_response_for_links_added_response(faker, titles, expected):
+    res = link_added_response(faker.pyint(), titles, [])
+
+    assert res["text"] == f"""<b>Links added</b>\n{expected}\n"""
+
+
+@pytest.mark.parametrize(
+    "skipped_urls,expected",
+    [(["Hello"], "1. Hello"), (["link1", "link2"], "1. link1\n2. link2")],
+)
+def test_link_response_for_skipped_links_response(faker, skipped_urls, expected):
+    res = link_added_response(faker.pyint(), [], skipped_urls)
+
+    assert res["text"] == f"""<b>Links skipped</b>\n{expected}\n"""
+
+
+@pytest.mark.parametrize(
+    "added,skipped,expected",
+    [
+        (
+            ["link1"],
+            ["link2"],
+            """<b>Links added</b>
+1. link1
+<b>Links skipped</b>
+1. link2
+""",
+        )
+    ],
+)
+def test_link_response(faker, added, skipped, expected):
+    res = link_added_response(faker.pyint(), added, skipped)
+
+    assert res["text"] == expected

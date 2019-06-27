@@ -74,11 +74,35 @@ def extract_links_from_message(message):
 
 
 def link_added_response(sender_chat_id, items_added, items_skipped):
-    header = "<b>Links added</b>"
+    title_link = lambda index, title: f"{index}. {title}"
+    items_added_body = (
+        "<b>Links added</b>\n"
+        + "\n".join(
+            map(
+                lambda x: title_link(*x),
+                zip(range(1, len(items_added) + 1), items_added),
+            )
+        )
+        + "\n"
+    )
+    items_skipped_body = (
+        "<b>Links skipped</b>\n"
+        + "\n".join(
+            map(
+                lambda x: title_link(*x),
+                zip(range(1, len(items_skipped) + 1), items_skipped),
+            )
+        )
+        + "\n"
+    )
     body = ""
+    if items_added:
+        body += items_added_body
+    if items_skipped:
+        body += items_skipped_body
     return {
         "chat_id": sender_chat_id,
-        "text": f"{header}\n{body}",
+        "text": body,
         "parse_mode": "HTML",
         "disable_notification": True,
         "disable_web_page_preview": True,
