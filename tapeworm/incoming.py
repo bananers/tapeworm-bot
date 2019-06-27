@@ -3,11 +3,11 @@ from .services import UnableToObtainTitleError
 
 
 class Incoming:
-    def __init__(self, telegram, db, services):
+    def __init__(self, telegram, db, extractor):
         self.telegram = telegram
         # pylint: disable=invalid-name
         self.db = db
-        self.services = services
+        self.extractor = extractor
 
     def parse_message(self, data):
         text = _get_text(data)
@@ -31,7 +31,7 @@ class Incoming:
                         {
                             "link": url,
                             "by": _get_author(data),
-                            "title": self.services.retrieve_url_title(url),
+                            "title": self.extractor.retrieve_url_title(url),
                             "date": _get_message_date(data),
                         }
                     )

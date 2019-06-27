@@ -30,17 +30,6 @@ def is_command_of(text, command):
     return is_command(text) and command in text
 
 
-def find_all_url_types(message):
-    if "entities" not in message:
-        return []
-    return list(
-        map(
-            lambda x: message["text"][x["offset"] : x["offset"] + x["length"]],
-            filter(lambda x: x["type"] == "url", message["entities"]),
-        )
-    )
-
-
 def build_link_line(number, link):
     title = f'<a href="{link.link}">{escape(link.title)}</a>'
     user = f"{link.by}"
@@ -137,11 +126,6 @@ def handle_message(message):
 
     if is_command_of(text, "links"):
         return dict({"chat_id": message["chat"]["id"]}, **build_recent_links())
-
-    url_entities = find_all_url_types(message)
-    if url_entities:
-        skipped_urls, added_urls = create_links_from_message(message, url_entities)
-        return build_add_link_response(message, skipped_urls, added_urls)
     return None
 
 

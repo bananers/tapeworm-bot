@@ -22,7 +22,7 @@ def test_link_added_when_message_contains_single_link(
         telegram_message_generator, message, entities
     )
 
-    incoming.services.retrieve_url_title.side_effect = faker.pystr()
+    incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
     incoming.db.create_multi.assert_called_once()
@@ -52,7 +52,7 @@ def test_link_added_when_message_contains_multiple_links(
         telegram_message_generator, message, entities
     )
 
-    incoming.services.retrieve_url_title.side_effect = faker.pystr()
+    incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
     incoming.db.create_multi.assert_called_once()
@@ -92,7 +92,7 @@ def test_invalid_titles_have_response(incoming, telegram_message_generator):
         telegram_message_generator, message, entities
     )
 
-    incoming.services.retrieve_url_title.side_effect = UnableToObtainTitleError
+    incoming.extractor.retrieve_url_title.side_effect = UnableToObtainTitleError
     incoming.handle_data(message_from_telegram)
 
     incoming.telegram.send_text_response.assert_called_once()

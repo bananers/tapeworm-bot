@@ -24,14 +24,21 @@ def client(app):
 
 
 @pytest.fixture
-def incoming(mocker):
+def incoming(mocker, extractor):
     telegram = Telegram.TelegramService("zzz")
     mocker.patch.object(telegram, "send_text_response")
     mocker.patch.object(db_link, "create")
     mocker.patch.object(db_link, "create_multi")
-    mocker.patch.object(services, "retrieve_url_title")
+    mocker.patch.object(extractor, "retrieve_url_title")
 
-    return Incoming(telegram, db_link, services)
+    return Incoming(telegram, db_link, extractor)
+
+
+@pytest.fixture
+def extractor() -> services.TitleExtractor:
+    extractor = services.TitleExtractor()
+
+    return extractor
 
 
 @pytest.fixture

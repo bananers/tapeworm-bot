@@ -21,50 +21,50 @@ import tapeworm.services as services
         ("<html><header><title>😊😊😁😁🎉🎉🎁🎁✔😃🎂</title></header></html>", "😊😊😁😁🎉🎉🎁🎁✔😃🎂"),
     ],
 )
-def test_extract_title(body, expected):
-    assert services.extract_title(body) == expected
+def test_extract_title(extractor, body, expected):
+    assert extractor.extract_title(body) == expected
 
 
-def test_retrieve_url_title_when_no_errors(mocker):
+def test_retrieve_url_title_when_no_errors(mocker, extractor):
     url = "http://hello.com"
 
-    mocker.patch.object(services, "download_url_body")
-    services.download_url_body.return_value = (
+    mocker.patch.object(extractor, "download_url_body")
+    extractor.download_url_body.return_value = (
         "<html><header><title>test</title></header></html>"
     )
 
-    assert services.retrieve_url_title(url) == "test"
+    assert extractor.retrieve_url_title(url) == "test"
 
 
-def test_retrieve_url_title_when_error(mocker):
+def test_retrieve_url_title_when_error(mocker, extractor):
     url = "http://hello.com"
 
-    mocker.patch.object(services, "download_url_body")
-    services.download_url_body.side_effect = requests.exceptions.HTTPError
+    mocker.patch.object(extractor, "download_url_body")
+    extractor.download_url_body.side_effect = requests.exceptions.HTTPError
 
     with pytest.raises(services.UnableToObtainTitleError):
-        services.retrieve_url_title(url)
+        extractor.retrieve_url_title(url)
 
 
-def test_retrieve_title_when_title_does_not_exist(mocker):
+def test_retrieve_title_when_title_does_not_exist(mocker, extractor):
     url = "http://hello.com"
 
-    mocker.patch.object(services, "download_url_body")
-    services.download_url_body.return_value = "<html></html>"
+    mocker.patch.object(extractor, "download_url_body")
+    extractor.download_url_body.return_value = "<html></html>"
 
-    assert services.retrieve_url_title(url) == url
+    assert extractor.retrieve_url_title(url) == url
 
 
-def test_schema_is_filled_if_missing(mocker):
+def test_schema_is_filled_if_missing(mocker, extractor):
     url = "hello.com"
 
-    mocker.patch.object(services, "download_url_body")
+    mocker.patch.object(extractor, "download_url_body")
 
     def side_effect(*args):
         if args[0] == "https://hello.com":
             return "<html><title>hello</title></html>"
         return None
 
-    services.download_url_body.side_effect = side_effect
+    extractor.download_url_body.side_effect = side_effect
 
-    assert services.retrieve_url_title(url) == "hello"
+    assert extractor.retrieve_url_title(url) == "hello"
