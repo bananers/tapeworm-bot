@@ -14,7 +14,12 @@ class Incoming:
             return response_text(data["message"], "pong")
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
+        if contains_links(data):
+            return self.extract_and_add_links(data)
 
+        return None
+
+    def extract_and_add_links(self, data):
         urls_in_message = extract_links_from_message(data)
         if urls_in_message:
             extracted_urls = []
@@ -38,6 +43,17 @@ class Incoming:
             return {"status": "ok"}
 
         return {"status": "ok", "telegram": self.telegram.send_text_response(res)}
+
+
+def contains_links(message):
+    message = message["message"]
+    if "entities" not in message:
+        return False
+
+    return (
+        next(filter(lambda x: x["type"] == "url", message["entities"]), None)
+        is not None
+    )
 
 
 def extract_links_from_message(message):

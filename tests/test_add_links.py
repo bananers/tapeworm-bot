@@ -65,6 +65,7 @@ def test_link_added_when_message_contains_multiple_links(
             [{"offset": 0, "length": len("hello.com"), "type": "url"}],
             ["hello.com"],
         ),
+        ("qwpoekqwekpqwoeqpkqpoekqwpeqsa asdpokaspdokasp okaspo kdaspdkas", [], []),
     ],
 )
 def test_link_can_be_extracted(message, entities, expected, telegram_message_generator):
