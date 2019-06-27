@@ -68,3 +68,4 @@ def test_schema_is_filled_if_missing(mocker, extractor):
     extractor.download_url_body.side_effect = side_effect
 
     assert extractor.retrieve_url_title(url) == "hello"
+    assert extractor.retrieve_url_title("https://hello.com") == "hello"

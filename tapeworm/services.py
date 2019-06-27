@@ -29,7 +29,7 @@ class TitleExtractor:
         try:
             new_url = (
                 f"https://{url}"
-                if not url.startswith("http://") or url.startswith("https://")
+                if not (url.startswith("http://") or url.startswith("https://"))
                 else url
             )
             body = self.download_url_body(new_url)
