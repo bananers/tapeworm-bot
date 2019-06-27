@@ -6,6 +6,10 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 
+def extract_title(url):
+    return "Example"
+
+
 def parse_link_contents(links):
     parsed_links = []
     error_links = []

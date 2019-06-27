@@ -33,23 +33,12 @@ def is_command_of(text, command):
 def find_all_url_types(message):
     if "entities" not in message:
         return []
-    return map(
-        lambda x: message["text"][x["offset"] : x["offset"] + x["length"]],
-        filter(lambda x: x["type"] == "url", message["entities"]),
+    return list(
+        map(
+            lambda x: message["text"][x["offset"] : x["offset"] + x["length"]],
+            filter(lambda x: x["type"] == "url", message["entities"]),
+        )
     )
-
-
-def build_help_response(src):
-    return {
-        "chat_id": src["chat"]["id"],
-        "text": """
-I'm a bot that likes to gobble up links shared by users in the chat. Here's how you can use me.
-
-/links - Shows pages of links that I have gobbled
-/ping - Tests whether I'm alive""",
-        "parse_mode": "Markdown",
-        "disable_notification": True,
-    }
 
 
 def build_link_line(number, link):
@@ -145,10 +134,7 @@ def handle_message(message):
         return None
 
     text = _get_text(message)
-    if is_command_of(text, "ping"):
-        return response_text(message, "pong")
-    if is_command_of(text, "help"):
-        return build_help_response(message)
+
     if is_command_of(text, "links"):
         return dict({"chat_id": message["chat"]["id"]}, **build_recent_links())
 

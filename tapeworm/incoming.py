@@ -1,22 +1,67 @@
-class Incoming:
-    def __init__(self, telegram):
-        self.telegram = telegram
+from datetime import datetime
 
-    @staticmethod
-    def parse_message(data):
+
+class Incoming:
+    def __init__(self, telegram, db, extractor):
+        self.telegram = telegram
+        # pylint: disable=invalid-name
+        self.db = db
+        self.extractor = extractor
+
+    def parse_message(self, data):
         text = _get_text(data)
         if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
+
+        urls_in_message = extract_links_from_message(data)
+        if urls_in_message:
+            extracted_urls = []
+            for url in urls_in_message:
+                item_added = self.db.from_dict(
+                    {
+                        "link": url,
+                        "by": _get_author(data),
+                        "title": self.extractor.extract_title(url),
+                        "date": _get_message_date(data),
+                    }
+                )
+                extracted_urls.append(item_added)
+            created_links = self.db.create_multi(extracted_urls)
+            return link_added_response(_get_chat_id(data), created_links)
         return None
 
     def handle_data(self, data):
-        res = Incoming.parse_message(data)
+        res = self.parse_message(data)
         if res is None:
             return {"status": "ok"}
 
         return {"status": "ok", "telegram": self.telegram.send_text_response(res)}
+
+
+def extract_links_from_message(message):
+    message = message["message"]
+    if "entities" not in message:
+        return []
+    return list(
+        map(
+            lambda x: message["text"][x["offset"] : x["offset"] + x["length"]],
+            filter(lambda x: x["type"] == "url", message["entities"]),
+        )
+    )
+
+
+def link_added_response(sender_chat_id, items_added):
+    header = "<b>Links added</b>"
+    body = ""
+    return {
+        "chat_id": sender_chat_id,
+        "text": f"{header}\n{body}",
+        "parse_mode": "HTML",
+        "disable_notification": True,
+        "disable_web_page_preview": True,
+    }
 
 
 def help_response(sender_chat_id):
@@ -39,6 +84,14 @@ def response_text(src, message):
 
 def _get_chat_id(data):
     return data["message"]["chat"]["id"]
+
+
+def _get_author(data):
+    return data["message"]["from"]["id"]
+
+
+def _get_message_date(data):
+    return datetime.utcfromtimestamp(data["message"]["date"])
 
 
 def _get_text(data):

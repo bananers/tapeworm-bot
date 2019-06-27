@@ -1,33 +1,6 @@
-# pylint: disable=no-member,redefined-outer-name
-import pytest
-from faker import Faker
+from tapeworm.incoming import _get_chat_id, help_response
 
-import tapeworm.ext.telegram as Telegram
-from tapeworm.incoming import Incoming, _get_chat_id, help_response
-
-
-@pytest.fixture
-def telegram_message_generator():
-    faker = Faker()
-
-    def _gen():
-        return {"message": {"chat": {"id": faker.pyint()}, "text": faker.pystr()}}
-
-    return _gen
-
-
-def telegram_message_with_text(gen, text):
-    message = gen()
-    message["message"]["text"] = text
-
-    return message
-
-
-@pytest.fixture
-def incoming(mocker):
-    telegram = Telegram.TelegramService("zzz")
-    mocker.patch.object(telegram, "send_text_response")
-    return Incoming(telegram)
+from .conftest import telegram_message_with_text
 
 
 def test_ping_command_sends_response(incoming, telegram_message_generator):
