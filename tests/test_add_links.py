@@ -16,12 +16,13 @@ from .conftest import telegram_message_with_links
     ],
 )
 def test_link_added_when_message_contains_single_link(
-    message, entities, incoming, telegram_message_generator
+    message, entities, incoming, telegram_message_generator, faker
 ):
     message_from_telegram = telegram_message_with_links(
         telegram_message_generator, message, entities
     )
 
+    incoming.services.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
     incoming.db.create_multi.assert_called_once()
@@ -35,18 +36,23 @@ def test_link_added_when_message_contains_single_link(
             "http://hello.com google.com",
             [
                 {"offset": 0, "length": len("http://hello.com"), "type": "url"},
-                {"offset": 18, "length": len("google.com"), "type": "url"},
+                {
+                    "offset": len("http://hello.com") + 1,
+                    "length": len("google.com"),
+                    "type": "url",
+                },
             ],
         )
     ],
 )
 def test_link_added_when_message_contains_multiple_links(
-    message, entities, incoming, telegram_message_generator
+    message, entities, incoming, telegram_message_generator, faker
 ):
     message_from_telegram = telegram_message_with_links(
         telegram_message_generator, message, entities
     )
 
+    incoming.services.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
     incoming.db.create_multi.assert_called_once()
@@ -86,7 +92,7 @@ def test_invalid_titles_have_response(incoming, telegram_message_generator):
         telegram_message_generator, message, entities
     )
 
-    incoming.services.extract_title.side_effect = UnableToObtainTitleError
+    incoming.services.retrieve_url_title.side_effect = UnableToObtainTitleError
     incoming.handle_data(message_from_telegram)
 
     incoming.telegram.send_text_response.assert_called_once()

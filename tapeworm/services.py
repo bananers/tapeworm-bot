@@ -10,8 +10,34 @@ class UnableToObtainTitleError(Exception):
     pass
 
 
-def extract_title(url):
-    return "Example"
+def extract_title(body: str):
+    body = BeautifulSoup(body, features="html.parser")
+    return body.title.string.strip() if body.title is not None else None
+
+
+def download_url_body(url):
+    logger.debug("Downloading contents for %s", url)
+    user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
+    res = requests.get(url, headers={"User-Agent": user_agent})
+    res.raise_for_status()
+
+    return res.text
+
+
+def retrieve_url_title(url):
+    try:
+        new_url = (
+            f"https://{url}"
+            if not url.startswith("http://") or url.startswith("https://")
+            else url
+        )
+        body = download_url_body(new_url)
+        title = extract_title(body)
+        if title is None:
+            return url
+        return title
+    except requests.exceptions.HTTPError:
+        raise UnableToObtainTitleError
 
 
 def parse_link_contents(links):

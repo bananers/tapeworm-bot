@@ -31,7 +31,7 @@ class Incoming:
                         {
                             "link": url,
                             "by": _get_author(data),
-                            "title": self.services.extract_title(url),
+                            "title": self.services.retrieve_url_title(url),
                             "date": _get_message_date(data),
                         }
                     )

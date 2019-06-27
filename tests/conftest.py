@@ -29,7 +29,7 @@ def incoming(mocker):
     mocker.patch.object(telegram, "send_text_response")
     mocker.patch.object(db_link, "create")
     mocker.patch.object(db_link, "create_multi")
-    mocker.patch.object(services, "extract_title")
+    mocker.patch.object(services, "retrieve_url_title")
 
     return Incoming(telegram, db_link, services)
 
