@@ -6,6 +6,10 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 
+class UnableToObtainTitleError(Exception):
+    pass
+
+
 def extract_title(url):
     return "Example"
 

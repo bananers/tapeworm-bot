@@ -6,7 +6,7 @@ from faker import Faker
 
 import tapeworm.ext.telegram as Telegram
 import tapeworm.model_link as db_link
-import tapeworm.services as extractor
+import tapeworm.services as services
 from tapeworm.incoming import Incoming
 from .context import tapeworm
 
@@ -29,8 +29,9 @@ def incoming(mocker):
     mocker.patch.object(telegram, "send_text_response")
     mocker.patch.object(db_link, "create")
     mocker.patch.object(db_link, "create_multi")
+    mocker.patch.object(services, "extract_title")
 
-    return Incoming(telegram, db_link, extractor)
+    return Incoming(telegram, db_link, services)
 
 
 @pytest.fixture

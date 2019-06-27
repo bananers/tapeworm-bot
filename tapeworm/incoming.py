@@ -1,12 +1,13 @@
 from datetime import datetime
+from .services import UnableToObtainTitleError
 
 
 class Incoming:
-    def __init__(self, telegram, db, extractor):
+    def __init__(self, telegram, db, services):
         self.telegram = telegram
         # pylint: disable=invalid-name
         self.db = db
-        self.extractor = extractor
+        self.services = services
 
     def parse_message(self, data):
         text = _get_text(data)
@@ -23,18 +24,22 @@ class Incoming:
         urls_in_message = extract_links_from_message(data)
         if urls_in_message:
             extracted_urls = []
+            skipped_urls = []
             for url in urls_in_message:
-                item_added = self.db.from_dict(
-                    {
-                        "link": url,
-                        "by": _get_author(data),
-                        "title": self.extractor.extract_title(url),
-                        "date": _get_message_date(data),
-                    }
-                )
-                extracted_urls.append(item_added)
+                try:
+                    item_added = self.db.from_dict(
+                        {
+                            "link": url,
+                            "by": _get_author(data),
+                            "title": self.services.extract_title(url),
+                            "date": _get_message_date(data),
+                        }
+                    )
+                    extracted_urls.append(item_added)
+                except UnableToObtainTitleError as _error:
+                    skipped_urls.append(url)
             created_links = self.db.create_multi(extracted_urls)
-            return link_added_response(_get_chat_id(data), created_links)
+            return link_added_response(_get_chat_id(data), created_links, skipped_urls)
         return None
 
     def handle_data(self, data):
@@ -68,7 +73,7 @@ def extract_links_from_message(message):
     )
 
 
-def link_added_response(sender_chat_id, items_added):
+def link_added_response(sender_chat_id, items_added, items_skipped):
     header = "<b>Links added</b>"
     body = ""
     return {

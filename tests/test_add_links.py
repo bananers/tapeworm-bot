@@ -1,6 +1,7 @@
 import pytest
 
 from tapeworm.incoming import extract_links_from_message
+from tapeworm.services import UnableToObtainTitleError
 from .conftest import telegram_message_with_links
 
 
@@ -76,3 +77,17 @@ def test_link_can_be_extracted(message, entities, expected, telegram_message_gen
     res = extract_links_from_message(message_from_telegram)
 
     assert res == expected
+
+
+def test_invalid_titles_have_response(incoming, telegram_message_generator):
+    message = "http://hello.com"
+    entities = [{"offset": 0, "length": len(message), "type": "url"}]
+    message_from_telegram = telegram_message_with_links(
+        telegram_message_generator, message, entities
+    )
+
+    incoming.services.extract_title.side_effect = UnableToObtainTitleError
+    incoming.handle_data(message_from_telegram)
+
+    incoming.telegram.send_text_response.assert_called_once()
+
