@@ -5,7 +5,7 @@ import pytest
 from faker import Faker
 
 import tapeworm.ext.telegram as Telegram
-import tapeworm.model_link as db_link
+import tapeworm.model_link as model_link
 import tapeworm.services as services
 from tapeworm.incoming import Incoming
 from .context import tapeworm
@@ -26,12 +26,14 @@ def client(app):
 @pytest.fixture
 def incoming(mocker, extractor):
     telegram = Telegram.TelegramService("zzz")
+    links = model_link.Links(None)
+
     mocker.patch.object(telegram, "send_text_response")
-    mocker.patch.object(db_link, "create")
-    mocker.patch.object(db_link, "create_multi")
+    mocker.patch.object(links, "create")
+    mocker.patch.object(links, "create_multi")
     mocker.patch.object(extractor, "retrieve_url_title")
 
-    return Incoming(telegram, db_link, extractor)
+    return Incoming(telegram, links, extractor)
 
 
 @pytest.fixture

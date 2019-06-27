@@ -4,7 +4,6 @@ import json
 from html import escape
 from datetime import datetime
 
-from .model_link import list_links, from_dict, create_multi
 from .services import parse_link_contents
 
 logger = logging.getLogger(__name__)
@@ -56,6 +55,7 @@ def reply_keyboard_markup(limit, offset):
 
 
 def build_recent_links(limit=10, offset=0):
+    list_links = lambda x, y: []
     links = list_links(limit, offset)
     number = range(offset + 1, offset + len(links) + 1)
 
@@ -80,10 +80,13 @@ def build_recent_links(limit=10, offset=0):
 def create_links_from_message(message, url_entities):
     skipped_urls, added_urls = parse_link_contents(url_entities)
 
+    from_dict = lambda x: None
     author = _get_from(message)
     today = datetime.utcnow()
     enhance_link = lambda x: from_dict(dict({"by": author, "date": today}, **x))
     added_urls_as_links = list(map(enhance_link, added_urls))
+
+    create_multi = lambda x: []
     added_links = list(create_multi(added_urls_as_links))
 
     return skipped_urls, added_links

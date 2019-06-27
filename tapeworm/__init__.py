@@ -5,8 +5,6 @@ from injector import inject
 from flask import Flask, g
 
 import tapeworm.providers as providers
-import tapeworm.ext.telegram as tg
-from tapeworm.incoming import Incoming
 
 
 def create_app(test_config=None):
@@ -38,7 +36,9 @@ def create_app(test_config=None):
     app.register_blueprint(tapeworm.bp)
 
     injector_default_modules = dict(
-        telegram=providers.TelegramClientModule(), incoming=providers.IncomingModule()
+        telegram=providers.TelegramClientModule(),
+        incoming=providers.IncomingModule(),
+        links=providers.LinksClientModule(),
     )
 
     flask_injector.FlaskInjector(app=app, modules=injector_default_modules.values())

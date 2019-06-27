@@ -38,7 +38,7 @@ class Incoming:
                     extracted_urls.append(item_added)
                 except UnableToObtainTitleError as _error:
                     skipped_urls.append(url)
-            created_links = self.db.create_multi(extracted_urls)
+            created_links = list(self.db.create_multi(extracted_urls))
             return link_added_response(_get_chat_id(data), created_links, skipped_urls)
         return None
 
@@ -74,17 +74,18 @@ def extract_links_from_message(message):
 
 
 def link_added_response(sender_chat_id, items_added, items_skipped):
-    title_link = lambda index, title: f"{index}. {title}"
+    link_to_str = lambda index, link: f"{index}. {link.title}"
     items_added_body = (
         "<b>Links added</b>\n"
         + "\n".join(
             map(
-                lambda x: title_link(*x),
+                lambda x: link_to_str(*x),
                 zip(range(1, len(items_added) + 1), items_added),
             )
         )
         + "\n"
     )
+    title_link = lambda index, title: f"{index}. {title}"
     items_skipped_body = (
         "<b>Links skipped</b>\n"
         + "\n".join(
