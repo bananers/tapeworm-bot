@@ -27,7 +27,8 @@ class Links:
             date=entity["date"],
         )
 
-    def from_dict(self, data):
+    @staticmethod
+    def from_dict(data):
         """
         Creates a Link from a dictionary. The output from this function
         can be passed into create with Link._asdict()

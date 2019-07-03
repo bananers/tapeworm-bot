@@ -1,5 +1,6 @@
 from datetime import datetime
 from .services import UnableToObtainTitleError
+from .model_link import Links
 
 
 class Incoming:
@@ -29,7 +30,7 @@ class Incoming:
             skipped_urls = []
             for url in urls_in_message:
                 try:
-                    item_added = self.db.from_dict(
+                    item_added = Links.from_dict(
                         {
                             "link": url,
                             "by": _get_author(data),
