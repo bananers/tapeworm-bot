@@ -35,7 +35,9 @@ def create_fake_link(faker) -> Link:
 def test_should_display_maximally_10_links(incoming, telegram_message_generator, faker):
     message = telegram_message_with_text(telegram_message_generator, "/links")
 
-    incoming.db.links = [create_fake_link(faker) for x in range(0, 11)]
+    incoming.db.links = [
+        create_fake_link(faker) for x in range(0, faker.pyint(min=10 + 1, max=100))
+    ]
     res = incoming.handle_data(message)
 
     assert len(res["payload"]["text"].split("\n")) == 10
