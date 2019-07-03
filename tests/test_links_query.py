@@ -12,6 +12,12 @@ def test_should_inform_when_no_links(incoming, telegram_message_generator):
     assert res["payload"]["text"] == "No links found"
 
 
+def create_fake_link(faker) -> Link:
+    return Link(
+        faker.pyint(), faker.pystr(), faker.pystr(), faker.pyint(), faker.date_time()
+    )
+
+
 def test_should_display_one_link(incoming, telegram_message_generator, faker):
     message = telegram_message_with_text(telegram_message_generator, "/links")
 
@@ -23,12 +29,6 @@ def test_should_display_one_link(incoming, telegram_message_generator, faker):
     assert (
         res["payload"]["text"]
         == f"1. <a href='{link.link}'>{link.title}</a> by {link.by}"
-    )
-
-
-def create_fake_link(faker) -> Link:
-    return Link(
-        faker.pyint(), faker.pystr(), faker.pystr(), faker.pyint(), faker.date_time()
     )
 
 
