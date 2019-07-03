@@ -57,15 +57,15 @@ class Incoming:
         }
 
 
+URL_FILTER = lambda x: x["type"] == "url"
+
+
 def contains_links(message):
     message = message["message"]
     if "entities" not in message:
         return False
 
-    return (
-        next(filter(lambda x: x["type"] == "url", message["entities"]), None)
-        is not None
-    )
+    return next(filter(URL_FILTER, message["entities"]), None) is not None
 
 
 def extract_links_from_message(message):
@@ -75,7 +75,7 @@ def extract_links_from_message(message):
     return list(
         map(
             lambda x: message["text"][x["offset"] : x["offset"] + x["length"]],
-            filter(lambda x: x["type"] == "url", message["entities"]),
+            filter(URL_FILTER, message["entities"]),
         )
     )
 
