@@ -46,15 +46,17 @@ class Incoming:
         return None
 
     def handle_data(self, data):
-        res = self.parse_message(data)
+        if "message" in data:
+            res = self.parse_message(data)
 
-        return {
-            "status": "ok",
-            "payload": res,
-            "telegram": self.telegram.send_text_response(res)
-            if res is not None
-            else None,
-        }
+            return {
+                "status": "ok",
+                "payload": res,
+                "telegram": self.telegram.send_text_response(res)
+                if res is not None
+                else None,
+            }
+        return {"status": "ok"}
 
 
 URL_FILTER = lambda x: x["type"] == "url"
