@@ -13,6 +13,8 @@ class Incoming:
         text = _get_text(data)
         if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
+        if is_command_of(text, "links"):
+            return links_response(data, self.db.list_links())
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
         if contains_links(data):
@@ -44,10 +46,14 @@ class Incoming:
 
     def handle_data(self, data):
         res = self.parse_message(data)
-        if res is None:
-            return {"status": "ok"}
 
-        return {"status": "ok", "telegram": self.telegram.send_text_response(res)}
+        return {
+            "status": "ok",
+            "payload": res,
+            "telegram": self.telegram.send_text_response(res)
+            if res is not None
+            else None,
+        }
 
 
 def contains_links(message):
@@ -71,6 +77,26 @@ def extract_links_from_message(message):
             filter(lambda x: x["type"] == "url", message["entities"]),
         )
     )
+
+
+def links_response(data, links):
+    link_to_str = (
+        lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by}"
+    )
+    display_links = links[:10]
+    links_body = "\n".join(
+        map(
+            lambda x: link_to_str(*x),
+            zip(range(1, len(display_links) + 1), display_links),
+        )
+    )
+    return {
+        "chat_id": _get_chat_id(data),
+        "text": links_body if links else "No links found",
+        "parse_mode": "HTML",
+        "disable_notification": True,
+        "disable_web_page_preview": True,
+    }
 
 
 def link_added_response(sender_chat_id, items_added, items_skipped):
