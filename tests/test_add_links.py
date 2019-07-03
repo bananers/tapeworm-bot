@@ -26,8 +26,8 @@ def test_link_added_when_message_contains_single_link(
     incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
-    incoming.db.create_multi.assert_called_once()
     incoming.telegram.send_text_response.assert_called_once()
+    assert len(incoming.db.links) == len(entities)
 
 
 @pytest.mark.parametrize(
@@ -56,8 +56,8 @@ def test_link_added_when_message_contains_multiple_links(
     incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
     incoming.handle_data(message_from_telegram)
 
-    incoming.db.create_multi.assert_called_once()
     incoming.telegram.send_text_response.assert_called_once()
+    assert len(incoming.db.links) == len(entities)
 
 
 @pytest.mark.parametrize(
