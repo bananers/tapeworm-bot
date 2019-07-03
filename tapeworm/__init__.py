@@ -39,6 +39,7 @@ def create_app(test_config=None):
         telegram=providers.TelegramClientModule(),
         incoming=providers.IncomingModule(),
         links=providers.LinksClientModule(),
+        ds=providers.DatastoreClientModule(),
     )
 
     flask_injector.FlaskInjector(app=app, modules=injector_default_modules.values())
