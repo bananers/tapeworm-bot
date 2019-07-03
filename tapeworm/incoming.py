@@ -15,7 +15,7 @@ class Incoming:
         if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
         if is_command_of(text, "links"):
-            return links_response(data, self.db.list_links())
+            return links_response(_get_chat_id(data), self.db.list_links())
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
         if contains_links(data):
@@ -80,7 +80,7 @@ def extract_links_from_message(message):
     )
 
 
-def links_response(data, links):
+def links_response(sender_chat_id, links):
     link_to_str = (
         lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by}"
     )
@@ -92,7 +92,7 @@ def links_response(data, links):
         )
     )
     return {
-        "chat_id": _get_chat_id(data),
+        "chat_id": sender_chat_id,
         "text": links_body if links else "No links found",
         "parse_mode": "HTML",
         "disable_notification": True,
