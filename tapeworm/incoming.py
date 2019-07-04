@@ -47,15 +47,17 @@ class Incoming:
 
     def handle_data(self, data):
         if "message" in data:
-            res = self.parse_message(data)
+            message = data["message"]
+            if "text" in message:
+                res = self.parse_message(data)
 
-            return {
-                "status": "ok",
-                "payload": res,
-                "telegram": self.telegram.send_text_response(res)
-                if res is not None
-                else None,
-            }
+                return {
+                    "status": "ok",
+                    "payload": res,
+                    "telegram": self.telegram.send_text_response(res)
+                    if res is not None
+                    else None,
+                }
         return {"status": "ok"}
 
 
