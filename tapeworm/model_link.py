@@ -69,7 +69,7 @@ class Links:
                 batch.put(entity)
                 yield self.from_datastore(entity)
 
-    def list_links(self, limit=10, offset=0):
+    def list_links(self, offset=0, limit=10):
         query = self.client.query(kind="Link", order=["-date"])
         query_iterator = query.fetch(limit=limit, offset=offset)
         page = next(query_iterator.pages)
