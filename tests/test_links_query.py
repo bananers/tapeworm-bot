@@ -1,5 +1,5 @@
-import pytest
 import json
+import pytest
 
 from tapeworm.model_link import Link
 from tapeworm.incoming import (
@@ -25,8 +25,8 @@ def create_fake_link(faker) -> Link:
     )
 
 
-def create_n_fake_link(faker, n) -> [Link]:
-    return [create_fake_link(faker) for x in range(n)]
+def create_n_fake_link(faker, n_links) -> [Link]:
+    return [create_fake_link(faker) for x in range(n_links)]
 
 
 def test_should_display_one_link(incoming, telegram_message_generator, faker):
