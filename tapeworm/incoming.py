@@ -1,6 +1,13 @@
+import json
+import logging
+
 from datetime import datetime
 from .services import UnableToObtainTitleError
 from .model_link import Links
+
+logger = logging.getLogger(__name__)
+
+PAGINATION_PAGE_INDEX = 0
 
 
 class Incoming:
@@ -15,7 +22,7 @@ class Incoming:
         if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
         if is_command_of(text, "links"):
-            return links_response(_get_chat_id(data), self.db.list_links())
+            return links_response(_get_chat_id(data), self.db.list_links(0, 10))
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
         if contains_links(data):
@@ -51,6 +58,7 @@ class Incoming:
             if "text" in message:
                 res = self.parse_message(data)
 
+                logger.debug(res)
                 return {
                     "status": "ok",
                     "payload": res,
@@ -84,11 +92,11 @@ def extract_links_from_message(message):
     )
 
 
-def links_response(sender_chat_id, links):
+def links_response(sender_chat_id, links, offset=0, limit=10):
     link_to_str = (
         lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by}"
     )
-    display_links = links[:10]
+    display_links = links[:limit]
     links_body = "\n".join(
         map(
             lambda x: link_to_str(*x),
@@ -101,7 +109,17 @@ def links_response(sender_chat_id, links):
         "parse_mode": "HTML",
         "disable_notification": True,
         "disable_web_page_preview": True,
+        "reply_markup": json.dumps(
+            {"inline_keyboard": pagination_builder(links, offset, limit)}
+        ),
     }
+
+
+def pagination_builder(links, offset, limit):
+    if not links:
+        return []
+    page_number = int(offset / limit) + 1
+    return [[{"text": str(page_number), "callback_data": "links:noop"}]]
 
 
 def link_added_response(sender_chat_id, items_added, items_skipped):
