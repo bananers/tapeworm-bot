@@ -3,4 +3,5 @@ beautifulsoup4==4.7.1
 requests-toolbelt==0.9.1
 gunicorn==19.9.0
 google-cloud-datastore==1.8.0
+google-cloud-logging==1.11.0
 Flask-Injector==0.12.0

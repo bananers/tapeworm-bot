@@ -7,7 +7,17 @@ from flask import Flask, g
 import tapeworm.providers as providers
 
 
+def _setup_logging():
+    import google.cloud.logging
+
+    # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled#Python_The_environment
+    if os.getenv("INSTANCE_ID") is not None:
+        client = google.cloud.logging.Client()
+        client.setup_logging()
+
+
 def create_app(test_config=None):
+    _setup_logging()
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         TOKEN="<default token, override me>",
