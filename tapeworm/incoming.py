@@ -7,7 +7,9 @@ from .model_link import Links
 
 logger = logging.getLogger(__name__)
 
-PAGINATION_PAGE_INDEX = 0
+PAGINATION_PREV_INDEX = 0
+PAGINATION_PAGE_INDEX = 1
+PAGINATION_NEXT_INDEX = 2
 
 
 class Incoming:
@@ -115,11 +117,30 @@ def links_response(sender_chat_id, links, offset=0, limit=10):
     }
 
 
+def button(text, data):
+    return {"text": text, "callback_data": data}
+
+
 def pagination_builder(links, offset, limit):
     if not links:
         return []
     page_number = int(offset / limit) + 1
-    return [[{"text": str(page_number), "callback_data": "links:noop"}]]
+
+    has_previous = offset < limit
+    back_button_offset = 0 if offset - limit < 0 else offset - limit
+    back_button_text = f"<{back_button_offset}"
+    back_button_data = "links:noop" if has_previous else f"links:p:{back_button_offset}"
+
+    has_next = offset + limit <= len(links)
+    next_button_text = f">{limit}" if has_next else ">0"
+    next_button_data = f"links:n:{offset+limit}" if has_next else "links:noop"
+    return [
+        [
+            button(back_button_text, back_button_data),
+            button(str(page_number), "links:noop"),
+            button(next_button_text, next_button_data),
+        ]
+    ]
 
 
 def link_added_response(sender_chat_id, items_added, items_skipped):

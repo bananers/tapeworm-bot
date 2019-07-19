@@ -7,6 +7,8 @@ from tapeworm.incoming import (
     links_response,
     pagination_builder,
     PAGINATION_PAGE_INDEX,
+    PAGINATION_PREV_INDEX,
+    PAGINATION_NEXT_INDEX,
 )
 from .conftest import telegram_message_with_text
 from .assertions import assert_button_text, assert_button_callback_data
@@ -127,3 +129,50 @@ def test_links_response_should_include_pagination_indicator(faker):
 
     assert res["reply_markup"] is not None
     assert_button_text(markup["inline_keyboard"][0][PAGINATION_PAGE_INDEX], "1")
+
+
+# pylint:disable=too-many-arguments
+@pytest.mark.parametrize(
+    "n_links,offset,limit,expected,prev_offset",
+    [
+        (10, 0, 10, "<0", "links:noop"),
+        (10, 5, 5, "<0", "links:p:0"),
+        (50, 20, 5, "<15", "links:p:15"),
+        (10, 2, 2, "<0", "links:p:0"),
+    ],
+)
+def test_links_response_should_include_back_button(
+    n_links, offset, limit, expected, prev_offset, faker
+):
+    res = links_response(
+        faker.pyint(), create_n_fake_link(faker, n_links), offset, limit
+    )
+    markup = json.loads(res["reply_markup"])
+
+    assert_button_text(markup["inline_keyboard"][0][PAGINATION_PREV_INDEX], expected)
+    assert_button_callback_data(
+        markup["inline_keyboard"][0][PAGINATION_PREV_INDEX], prev_offset
+    )
+
+
+# pylint:disable=too-many-arguments
+@pytest.mark.parametrize(
+    "n_links,offset,limit,expected,prev_offset",
+    [
+        (10, 0, 10, ">10", "links:n:10"),
+        (4, 0, 2, ">2", "links:n:2"),
+        (5, 0, 10, ">0", "links:noop"),
+    ],
+)
+def test_links_response_should_include_next_button(
+    n_links, offset, limit, expected, prev_offset, faker
+):
+    res = links_response(
+        faker.pyint(), create_n_fake_link(faker, n_links), offset, limit
+    )
+    markup = json.loads(res["reply_markup"])
+
+    assert_button_text(markup["inline_keyboard"][0][PAGINATION_NEXT_INDEX], expected)
+    assert_button_callback_data(
+        markup["inline_keyboard"][0][PAGINATION_NEXT_INDEX], prev_offset
+    )
