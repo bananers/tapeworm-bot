@@ -32,6 +32,29 @@ class Incoming:
 
         return None
 
+    def parse_callback_query(self, callback_query):
+        if "data" not in callback_query:
+            return None
+        data = _get_cq_data(callback_query)
+        if data is None:
+            return None
+
+        args = data.split(":")
+        print(args)
+        if len(args) != 3:
+            return None
+
+        if not args[2].isdigit():
+            return None
+
+        offset = int(args[2])
+        return dict(
+            {"message_id": _get_message_id(callback_query)},
+            **links_response(
+                _get_chat_id(callback_query), self.db.list_links(offset, 10), offset, 10
+            ),
+        )
+
     def extract_and_add_links(self, data):
         urls_in_message = extract_links_from_message(data)
         if urls_in_message:
@@ -54,20 +77,27 @@ class Incoming:
             return link_added_response(_get_chat_id(data), created_links, skipped_urls)
         return None
 
+    def _send_response(self, res):
+        logger.debug(res)
+        return {
+            "status": "ok",
+            "payload": res,
+            "telegram": self.telegram.send_text_response(res)
+            if res is not None
+            else None,
+        }
+
     def handle_data(self, data):
         if "message" in data:
             message = data["message"]
             if "text" in message:
                 res = self.parse_message(data)
+                return self._send_response(res)
 
-                logger.debug(res)
-                return {
-                    "status": "ok",
-                    "payload": res,
-                    "telegram": self.telegram.send_text_response(res)
-                    if res is not None
-                    else None,
-                }
+        if "callback_query" in data:
+            res = self.parse_callback_query(data["callback_query"])
+            return self._send_response(res)
+
         return {"status": "ok"}
 
 
@@ -202,6 +232,10 @@ def _get_chat_id(data):
     return data["message"]["chat"]["id"]
 
 
+def _get_message_id(data):
+    return data["message"]["message_id"]
+
+
 def _get_author(data):
     return data["message"]["from"]["id"]
 
@@ -212,6 +246,10 @@ def _get_message_date(data):
 
 def _get_text(data):
     return data["message"]["text"]
+
+
+def _get_cq_data(data):
+    return data["data"]
 
 
 def is_command(text):

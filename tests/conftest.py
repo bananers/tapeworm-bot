@@ -47,12 +47,26 @@ def faker():
 
 
 @pytest.fixture
+def telegram_callback_query_generator(telegram_message_generator):
+    def _gen():
+        return {
+            "callback_query": {
+                "data": None,
+                "message": telegram_message_generator()["message"],
+            }
+        }
+
+    return _gen
+
+
+@pytest.fixture
 def telegram_message_generator():
     faker = Faker()
 
     def _gen():
         return {
             "message": {
+                "message_id": faker.pyint(),
                 "chat": {"id": faker.pyint()},
                 "text": faker.pystr(),
                 "from": {"id": faker.pyint()},
@@ -61,6 +75,12 @@ def telegram_message_generator():
         }
 
     return _gen
+
+
+def telegram_callback_query_with_data(generated_update, data):
+    generated_update["callback_query"]["data"] = data
+
+    return generated_update
 
 
 def telegram_message_with_text(gen, text):

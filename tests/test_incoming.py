@@ -30,3 +30,12 @@ def test_dispatch_unhandled_types_should_just_acknowledge(
 
     assert not incoming.parse_message.called, reason
     assert res["status"] == "ok"
+
+
+def test_dispatch_callback_query(incoming, telegram_callback_query_generator, mocker):
+    data = telegram_callback_query_generator()
+
+    mocker.patch.object(incoming, "parse_callback_query")
+    incoming.handle_data(data)
+
+    incoming.parse_callback_query.assert_called_once()
