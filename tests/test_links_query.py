@@ -9,6 +9,7 @@ from tapeworm.incoming import (
     PAGINATION_PAGE_INDEX,
     PAGINATION_PREV_INDEX,
     PAGINATION_NEXT_INDEX,
+    DEFAULT_LIMIT,
 )
 from .conftest import telegram_message_with_text
 from .assertions import assert_button_text, assert_button_callback_data
@@ -53,7 +54,7 @@ def test_should_display_maximally_10_links(incoming, telegram_message_generator,
     ]
     res = incoming.handle_data(message)
 
-    assert len(res["payload"]["text"].split("\n")) == 10
+    assert len(res["payload"]["text"].split("\n")) == DEFAULT_LIMIT
 
 
 @pytest.mark.parametrize(
@@ -79,7 +80,7 @@ def test_should_display_maximally_10_links(incoming, telegram_message_generator,
     ],
 )
 def test_links_response(links, expected, faker):
-    res = links_response(faker.pyint(), links)
+    res = links_response(faker.pyint(), links, 0, 10)
 
     assert res["text"] == expected
 

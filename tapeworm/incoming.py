@@ -11,6 +11,8 @@ PAGINATION_PREV_INDEX = 0
 PAGINATION_PAGE_INDEX = 1
 PAGINATION_NEXT_INDEX = 2
 
+DEFAULT_LIMIT = 10
+
 
 class Incoming:
     def __init__(self, telegram, db, extractor):
@@ -24,7 +26,12 @@ class Incoming:
         if is_command_of(text, "ping"):
             return response_text(data["message"], "pong")
         if is_command_of(text, "links"):
-            return links_response(_get_chat_id(data), self.db.list_links(0, 10))
+            return links_response(
+                _get_chat_id(data),
+                self.db.list_links(0, DEFAULT_LIMIT),
+                0,
+                DEFAULT_LIMIT,
+            )
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
         if contains_links(data):
@@ -51,7 +58,10 @@ class Incoming:
         return dict(
             {"message_id": _get_message_id(callback_query)},
             **links_response(
-                _get_chat_id(callback_query), self.db.list_links(offset, 10), offset, 10
+                _get_chat_id(callback_query),
+                self.db.list_links(offset, DEFAULT_LIMIT),
+                offset,
+                DEFAULT_LIMIT,
             ),
         )
 
@@ -124,7 +134,7 @@ def extract_links_from_message(message):
     )
 
 
-def links_response(sender_chat_id, links, offset=0, limit=10):
+def links_response(sender_chat_id, links, offset, limit):
     link_to_str = (
         lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by}"
     )
