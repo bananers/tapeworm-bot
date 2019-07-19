@@ -9,4 +9,4 @@ class FakeLinks:
         return datas
 
     def list_links(self, offset, limit):
-        return self.links[offset:limit]
+        return self.links[offset : offset + limit]

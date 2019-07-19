@@ -57,13 +57,14 @@ class Incoming:
         self.telegram.answer_callback_query({"callback_query_id": callback_query["id"]})
 
         offset = int(args[2])
+        links = self.db.list_links(offset, DEFAULT_LIMIT)
+        if offset != 0 and not links:
+            return None
+
         return dict(
             {"message_id": _get_message_id(callback_query)},
             **links_response(
-                _get_chat_id(callback_query),
-                self.db.list_links(offset, DEFAULT_LIMIT),
-                offset,
-                DEFAULT_LIMIT,
+                _get_chat_id(callback_query), links, offset, DEFAULT_LIMIT
             ),
         )
 
