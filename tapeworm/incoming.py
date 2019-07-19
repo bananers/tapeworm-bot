@@ -54,6 +54,8 @@ class Incoming:
         if not args[2].isdigit():
             return None
 
+        self.telegram.answer_callback_query({"callback_query_id": callback_query["id"]})
+
         offset = int(args[2])
         return dict(
             {"message_id": _get_message_id(callback_query)},
@@ -87,14 +89,12 @@ class Incoming:
             return link_added_response(_get_chat_id(data), created_links, skipped_urls)
         return None
 
-    def _send_response(self, res):
+    def _send_response(self, res, func):
         logger.debug(res)
         return {
             "status": "ok",
             "payload": res,
-            "telegram": self.telegram.send_text_response(res)
-            if res is not None
-            else None,
+            "telegram": func(res) if res is not None else None,
         }
 
     def handle_data(self, data):
@@ -102,11 +102,11 @@ class Incoming:
             message = data["message"]
             if "text" in message:
                 res = self.parse_message(data)
-                return self._send_response(res)
+                return self._send_response(res, self.telegram.send_text_response)
 
         if "callback_query" in data:
             res = self.parse_callback_query(data["callback_query"])
-            return self._send_response(res)
+            return self._send_response(res, self.telegram.edit_message_text)
 
         return {"status": "ok"}
 

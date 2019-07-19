@@ -29,6 +29,8 @@ def incoming(mocker, extractor):
     links = FakeLinks()
 
     mocker.patch.object(telegram, "send_text_response")
+    mocker.patch.object(telegram, "answer_callback_query")
+    mocker.patch.object(telegram, "edit_message_text")
     mocker.patch.object(extractor, "retrieve_url_title")
 
     return Incoming(telegram, links, extractor)
@@ -47,10 +49,11 @@ def faker():
 
 
 @pytest.fixture
-def telegram_callback_query_generator(telegram_message_generator):
+def telegram_callback_query_generator(faker, telegram_message_generator):
     def _gen():
         return {
             "callback_query": {
+                "id": faker.pystr(),
                 "data": None,
                 "message": telegram_message_generator()["message"],
             }

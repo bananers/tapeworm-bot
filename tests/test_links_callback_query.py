@@ -22,4 +22,5 @@ def test_valid_links_query_format(cq_data, incoming, telegram_callback_query_gen
 
     incoming.handle_data(data)
 
-    incoming.telegram.send_text_response.assert_called_once()
+    incoming.telegram.answer_callback_query.assert_called_once()
+    incoming.telegram.edit_message_text.assert_called_once()
