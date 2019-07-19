@@ -64,74 +64,6 @@ def webhook_settings():
     return "ok"
 
 
-def sendMessage(config, payload):
-    res = requests.post(config["TG_URL"] + "sendMessage", data=payload)
-    if res.status_code != requests.codes.ok:
-        return (
-            False,
-            {
-                "payload": payload,
-                "status_code": res.status_code,
-                "response": json.loads(res.text),
-            },
-        )
-    return True, None
-
-
-def editMessageText(config, payload):
-    res = requests.post(config["TG_URL"] + "editMessageText", data=payload)
-    if res.status_code != requests.codes.ok:
-        return (
-            False,
-            {
-                "payload": payload,
-                "status_code": res.status_code,
-                "response": json.loads(res.text),
-            },
-        )
-    return True, None
-
-
-def answerCallbackQuery(config, payload):
-    res = requests.post(config["TG_URL"] + "answerCallbackQuery", data=payload)
-    if res.status_code != requests.codes.ok:
-        return (
-            False,
-            {
-                "payload": payload,
-                "status_code": res.status_code,
-                "response": json.loads(res.text),
-            },
-        )
-    return True, None
-
-
-def encode_payload(payload):
-    # if "text" in payload:
-    #     payload["text"] = payload["text"].encode("utf-8")
-
-    return payload
-
-
-def send_response(payload, response_fn):
-    if payload is None:
-        return "ok"
-
-    logger.debug(payload)
-    encoded_payload = encode_payload(payload)
-    ok, err = response_fn(current_app.config, encoded_payload)
-
-    if not ok and current_app.config["DEBUG"]:
-        return as_json(err)
-    if not ok:
-        logger.error(err)
-        return "ok"
-
-    if current_app.config["DEBUG"]:
-        return as_json(encoded_payload)
-    return "ok"
-
-
 @inject
 @bp.route("/webhook_<url_id>", methods=["POST"])
 def webhook_message(url_id, incoming: Incoming):
@@ -143,22 +75,3 @@ def webhook_message(url_id, incoming: Incoming):
     logger.debug("Request body %s", body)
 
     return as_json(incoming.handle_data(body))
-
-    # if "message" in body:
-    #     res = handle_message(body["message"])
-    #     return send_response(res, sendMessage)
-
-    # if "callback_query" in body:
-    #     answer_query_res = send_response(
-    #         {"callback_query_id": body["callback_query"]["id"]}, answerCallbackQuery
-    #     )
-
-    #     res = handle_callback_query(body["callback_query"])
-    #     callback_query_res = send_response(res, editMessageText)
-    #     if current_app.config["DEBUG"]:
-    #         return as_json(
-    #             {
-    #                 "answer_query": answer_query_res.get_json(),
-    #                 "callback_query": callback_query_res.get_json(),
-    #             }
-    #         )
