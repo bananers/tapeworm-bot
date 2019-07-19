@@ -137,9 +137,10 @@ def test_links_response_should_include_pagination_indicator(faker):
     "n_links,offset,limit,expected,prev_offset",
     [
         (10, 0, 10, "<0", "links:noop"),
-        (10, 5, 5, "<0", "links:p:0"),
-        (50, 20, 5, "<15", "links:p:15"),
-        (10, 2, 2, "<0", "links:p:0"),
+        (10, 5, 5, "<5", "links:p:0"),
+        (50, 20, 5, "<5", "links:p:15"),
+        (10, 2, 2, "<2", "links:p:0"),
+        (6, 2, 2, "<2", "links:p:0"),
     ],
 )
 def test_links_response_should_include_back_button(
@@ -158,15 +159,15 @@ def test_links_response_should_include_back_button(
 
 # pylint:disable=too-many-arguments
 @pytest.mark.parametrize(
-    "n_links,offset,limit,expected,prev_offset",
+    "n_links,offset,limit,expected,next_offset",
     [
         (10, 0, 10, ">10", "links:n:10"),
-        (4, 0, 2, ">2", "links:n:2"),
-        (5, 0, 10, ">0", "links:noop"),
+        (6, 2, 2, ">2", "links:n:4"),
+        (6, 6, 2, ">2", "links:n:8"),
     ],
 )
 def test_links_response_should_include_next_button(
-    n_links, offset, limit, expected, prev_offset, faker
+    n_links, offset, limit, expected, next_offset, faker
 ):
     res = links_response(
         faker.pyint(), create_n_fake_link(faker, n_links), offset, limit
@@ -175,5 +176,5 @@ def test_links_response_should_include_next_button(
 
     assert_button_text(markup["inline_keyboard"][0][PAGINATION_NEXT_INDEX], expected)
     assert_button_callback_data(
-        markup["inline_keyboard"][0][PAGINATION_NEXT_INDEX], prev_offset
+        markup["inline_keyboard"][0][PAGINATION_NEXT_INDEX], next_offset
     )

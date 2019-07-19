@@ -140,7 +140,7 @@ def webhook_message(url_id, incoming: Incoming):
 
     logger.debug("Request from %s", request.remote_addr)
     body = json.loads(request.data)
-    logger.debug(body)
+    logger.debug("Request body %s", body)
 
     return as_json(incoming.handle_data(body))
 

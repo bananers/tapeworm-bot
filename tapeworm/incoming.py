@@ -166,14 +166,12 @@ def pagination_builder(links, offset, limit):
         return []
     page_number = int(offset / limit) + 1
 
-    has_previous = offset < limit
-    back_button_offset = 0 if offset - limit < 0 else offset - limit
-    back_button_text = f"<{back_button_offset}"
-    back_button_data = "links:noop" if has_previous else f"links:p:{back_button_offset}"
+    has_previous = offset > 0
+    back_button_text = f"<{limit}" if has_previous else "<0"
+    back_button_data = f"links:p:{offset-limit}" if has_previous else "links:noop"
 
-    has_next = offset + limit <= len(links)
-    next_button_text = f">{limit}" if has_next else ">0"
-    next_button_data = f"links:n:{offset+limit}" if has_next else "links:noop"
+    next_button_text = f">{limit}"
+    next_button_data = f"links:n:{offset+limit}"
     return [
         [
             button(back_button_text, back_button_data),
