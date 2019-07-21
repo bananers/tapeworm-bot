@@ -24,3 +24,9 @@ def tests(session):
 def watch(session):
     session.install("-r", "requirements/dev.txt")
     session.run("ptw", "--runner=pytest")
+
+
+@nox.session
+def run(session):
+    session.install("-r", "requirements.txt")
+    session.run("python", "dev.py")
