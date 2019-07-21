@@ -70,8 +70,9 @@ def webhook_message(url_id, incoming: Incoming):
     if url_id != current_app.config["WEBHOOK_URL_ID"]:
         return "ok"
 
-    logger.debug("Request from %s", request.remote_addr)
     body = json.loads(request.data)
-    logger.debug("Request body %s", body)
+    logger.debug(
+        "Received request from", extra={"addr": request.remote_addr, "body": body}
+    )
 
     return as_json(incoming.handle_data(body))

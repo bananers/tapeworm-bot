@@ -47,7 +47,6 @@ class Incoming:
             return None
 
         args = data.split(":")
-        print(args)
         if len(args) != 3:
             return None
 
@@ -91,7 +90,7 @@ class Incoming:
         return None
 
     def _send_response(self, res, func):
-        logger.debug(res)
+        logger.debug("Sending response", extra={"payload": res})
         return {
             "status": "ok",
             "payload": res,
