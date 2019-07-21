@@ -67,7 +67,6 @@ def start_runner():
 
 if __name__ == "__main__":
     app.logger.setLevel(logging.DEBUG)
-    logging.basicConfig(level=logging.DEBUG)
 
     start_runner()
     app.run(host="127.0.0.1", port=8080, debug=True, use_debugger=True)

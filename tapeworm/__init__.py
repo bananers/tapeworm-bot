@@ -1,4 +1,5 @@
 import os
+import logging
 import flask_injector
 from injector import inject
 
@@ -19,6 +20,9 @@ def create_app(test_config=None):
         app.config.from_pyfile("config.py", silent=True)
     else:
         app.config.update(test_config)
+
+    if not app.testing:
+        logging.basicConfig(level=logging.DEBUG)
 
     app.config.update(TG_URL="https://api.telegram.org/bot" + app.config["TOKEN"] + "/")
     try:
