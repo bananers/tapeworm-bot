@@ -37,7 +37,7 @@ def start_update_timer():
                             json=update,
                         )
                     state.update(offset=max(update_ids) + 1)
-            time.sleep(5)
+            time.sleep(1)
 
     thread = threading.Thread(target=check_for_messages)
     thread.daemon = True
@@ -66,6 +66,8 @@ def start_runner():
 
 
 if __name__ == "__main__":
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
     app.logger.setLevel(logging.DEBUG)
 
     start_runner()
