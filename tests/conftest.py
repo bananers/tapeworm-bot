@@ -33,7 +33,7 @@ def incoming(mocker, extractor):
     mocker.patch.object(telegram, "edit_message_text")
     mocker.patch.object(extractor, "retrieve_url_title")
 
-    return Incoming(telegram, links, extractor)
+    return Incoming(telegram, links, extractor, "test")
 
 
 @pytest.fixture
