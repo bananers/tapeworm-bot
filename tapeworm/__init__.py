@@ -26,8 +26,16 @@ def setup_logging(level=logging.INFO):
     root_logger.setLevel(level)
 
 
+class CustomJSONEncoder(JSONEncoder):
+    def default(self, o):  # pylint: disable=method-hidden
+        if isinstance(o, datetime.datetime):
+            return o.isoformat()
+        return super().default(o)
+
+
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    app.json_encoder = CustomJSONEncoder
     app.config.from_mapping(
         TOKEN="<default token, override me>",
         WEBHOOK_URL_ID="<default webhook url id, override me>",
