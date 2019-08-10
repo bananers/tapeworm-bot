@@ -70,9 +70,12 @@ def webhook_message(url_id, incoming: Incoming):
     if url_id != current_app.config["WEBHOOK_URL_ID"]:
         return "ok"
 
-    body = json.loads(request.data)
-    logger.debug(
-        "Received request from", extra={"addr": request.remote_addr, "body": body}
-    )
-
-    return as_json(incoming.handle_data(body))
+    try:
+        body = json.loads(request.data)
+        logger.debug(
+            "Received request from", extra={"addr": request.remote_addr, "body": body}
+        )
+        return as_json(incoming.handle_data(body))
+    except Exception:  # pylint: disable=broad-except
+        logger.exception("ignoring message due to exception", extra={"body": body})
+        return "ok"
