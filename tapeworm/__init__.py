@@ -1,7 +1,7 @@
 import os
 import logging
-import flask_injector
 import datetime
+import flask_injector
 from injector import inject
 
 from flask import Flask, g
