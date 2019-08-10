@@ -89,10 +89,12 @@ def view_html(links: Links):
     if offset <= 0:
         offset = 0
     amount_per_page = 50
+    available_to_go_back = min(offset, amount_per_page)
     return render_template(
         "links.html",
         endpoint="/links",
         links=links.list_links(offset, amount_per_page),
         offset=offset,
         amount_per_page=amount_per_page,
+        available_to_go_back=available_to_go_back,
     )

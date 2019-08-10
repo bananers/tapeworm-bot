@@ -20,10 +20,12 @@
             {% endfor %}
         </ul>
     </div>
-    {% if offset >= amount_per_page %}
-    <a href="{{ endpoint }}?offset={{ offset-amount_per_page }}">Previous {{ amount_per_page }}</a>
+    {% if available_to_go_back > 0 %}
+    <a href="{{ endpoint }}?offset={{ offset-available_to_go_back }}">Previous {{ available_to_go_back }}</a>
     {% endif %}
+    {% if links|length == amount_per_page %}
     <a href="{{ endpoint }}?offset={{ offset+amount_per_page }}">Next {{ amount_per_page }}</a>
+    {% endif %}
 </body>
 
 </html>
