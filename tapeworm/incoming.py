@@ -15,11 +15,12 @@ DEFAULT_LIMIT = 10
 
 
 class Incoming:
-    def __init__(self, telegram, db, extractor):
+    def __init__(self, telegram, db, extractor, project_id):
         self.telegram = telegram
         # pylint: disable=invalid-name
         self.db = db
         self.extractor = extractor
+        self.project_id = project_id
 
     def parse_message(self, data):
         text = _get_text(data)
@@ -32,6 +33,8 @@ class Incoming:
                 0,
                 DEFAULT_LIMIT,
             )
+        if is_command_of(text, "web"):
+            return web_response(_get_chat_id(data), self.project_id)
         if is_command_of(text, "help"):
             return help_response(_get_chat_id(data))
         if contains_links(data):
@@ -218,6 +221,14 @@ def link_added_response(sender_chat_id, items_added, items_skipped):
     }
 
 
+def web_response(sender_chat_id, project_id):
+    return {
+        "chat_id": sender_chat_id,
+        "text": f"https://{project_id}.appspot.com/links",
+        "disable_notification": True,
+    }
+
+
 def help_response(sender_chat_id):
     return {
         "chat_id": sender_chat_id,
@@ -226,6 +237,7 @@ I'm a bot that likes to gobble up links shared by users in the chat. Here's how 
 
 /links - Shows pages of links that I have gobbled
 /ping - Tests whether I'm alive
+/web - Provides you the URL to where the interface lives
 """,
         "parse_mode": "Markdown",
         "disable_notification": True,

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Viewing all links</title>
+</head>
+
+<body>
+    <div id="links-container">
+        <ul>
+            {% for link in links %}
+            <li>
+                <a href="{{ link.link }}">{{ link.title }}</a>
+            </li>
+            {% else %}
+            <h1>No items</h1>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if offset >= amount_per_page %}
+    <a href="{{ endpoint }}?offset={{ offset-amount_per_page }}">Previous {{ amount_per_page }}</a>
+    {% endif %}
+    <a href="{{ endpoint }}?offset={{ offset+amount_per_page }}">Next {{ amount_per_page }}</a>
+</body>
+
+</html>

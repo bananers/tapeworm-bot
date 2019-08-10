@@ -4,9 +4,10 @@ import logging
 import json
 import requests
 from injector import inject
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, render_template
 
 from tapeworm.incoming import Incoming
+from tapeworm.model_link import Links
 
 logger = logging.getLogger(__name__)
 
@@ -79,3 +80,19 @@ def webhook_message(url_id, incoming: Incoming):
     except Exception:  # pylint: disable=broad-except
         logger.exception("ignoring message due to exception", extra={"body": body})
         return "ok"
+
+
+@bp.route("/links", methods=["GET"])
+def view_html(links: Links):
+    offset_str = request.args.get("offset", "0")
+    offset = int(offset_str) if offset_str.isdigit() else 0
+    if offset <= 0:
+        offset = 0
+    amount_per_page = 50
+    return render_template(
+        "links.html",
+        endpoint="/links",
+        links=links.list_links(offset, amount_per_page),
+        offset=offset,
+        amount_per_page=amount_per_page,
+    )

@@ -54,5 +54,8 @@ class IncomingModule(injector.Module):
         telegram_service: telegram.TelegramService,
         links: model_link.Links,
         extractor: services.TitleExtractor,
+        config: flask.Config,
     ) -> incoming.Incoming:
-        return incoming.Incoming(telegram_service, links, extractor)
+        return incoming.Incoming(
+            telegram_service, links, extractor, config.get("PROJECT_ID")
+        )

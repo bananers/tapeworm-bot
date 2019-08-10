@@ -31,6 +31,14 @@ def test_links_command_sends_response(incoming, telegram_message_generator):
     incoming.telegram.send_text_response.assert_called_once()
 
 
+def test_web_command_sends_response(incoming, telegram_message_generator):
+    message = telegram_message_with_text(telegram_message_generator, "/web")
+
+    incoming.handle_data(message)
+
+    incoming.telegram.send_text_response.assert_called_once()
+
+
 def test_unknown_command_doesnt_send_response(incoming, telegram_message_generator):
     message = telegram_message_generator()
 
