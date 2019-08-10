@@ -1,9 +1,11 @@
 import os
 import logging
 import flask_injector
+import datetime
 from injector import inject
 
 from flask import Flask, g
+from flask.json import JSONEncoder
 from pythonjsonlogger import jsonlogger
 
 import tapeworm.providers as providers
@@ -62,8 +64,10 @@ def create_app(test_config=None):
         return "ok"
 
     from tapeworm import tapeworm
+    from tapeworm import api
 
     app.register_blueprint(tapeworm.bp)
+    app.register_blueprint(api.bp)
 
     injector_default_modules = dict(
         telegram=providers.TelegramClientModule(),
