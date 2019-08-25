@@ -15,9 +15,9 @@ def lint(session):
 
 
 @nox.session
-def tests(session):
+def test(session):
     session.install("-r", "requirements/test.txt")
-    session.run("pytest")
+    session.run("pytest", "-vv", "-o", "console_output_style=classic")
 
 
 @nox.session
