@@ -1,7 +1,7 @@
 # pylint: disable=redefined-outer-name,no-member
 
-import pytest
 import logging
+import pytest
 
 from faker import Faker
 
