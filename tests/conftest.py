@@ -1,6 +1,7 @@
 # pylint: disable=redefined-outer-name,no-member
 
 import pytest
+import logging
 
 from faker import Faker
 
@@ -13,7 +14,9 @@ from .fakes import FakeLinks
 
 @pytest.fixture
 def app():
-    create_app = tapeworm.create_app({"TESTING": True, "WEBHOOK_URL_ID": "random_id"})
+    create_app = tapeworm.create_app(
+        "test", {"TESTING": True, "WEBHOOK_URL_ID": "random_id"}
+    )
 
     yield create_app
 
@@ -45,6 +48,7 @@ def extractor() -> services.TitleExtractor:
 
 @pytest.fixture
 def faker():
+    logging.getLogger("faker").setLevel(logging.ERROR)
     return Faker()
 
 

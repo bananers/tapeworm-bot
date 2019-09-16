@@ -30,10 +30,11 @@ def test_retrieve_url_title_when_no_errors(mocker, extractor):
 
     mocker.patch.object(extractor, "download_url_body")
     extractor.download_url_body.return_value = (
-        "<html><header><title>test</title></header></html>"
+        "<html><header><title>test</title></header></html>",
+        url,
     )
 
-    assert extractor.retrieve_url_title(url) == "test"
+    assert extractor.retrieve_url_title(url) == ("test", url)
 
 
 def test_retrieve_url_title_when_error(mocker, extractor):
@@ -50,7 +51,7 @@ def test_retrieve_title_when_title_does_not_exist(mocker, extractor):
     url = "http://hello.com"
 
     mocker.patch.object(extractor, "download_url_body")
-    extractor.download_url_body.return_value = "<html></html>"
+    extractor.download_url_body.return_value = ("<html></html>", "http://hello.com")
 
     assert extractor.retrieve_url_title(url) == url
 
@@ -62,10 +63,13 @@ def test_schema_is_filled_if_missing(mocker, extractor):
 
     def side_effect(*args):
         if args[0] == "https://hello.com":
-            return "<html><title>hello</title></html>"
+            return ("<html><title>hello</title></html>", "https://hello.com")
         return None
 
     extractor.download_url_body.side_effect = side_effect
 
-    assert extractor.retrieve_url_title(url) == "hello"
-    assert extractor.retrieve_url_title("https://hello.com") == "hello"
+    assert extractor.retrieve_url_title(url) == ("hello", "https://hello.com")
+    assert extractor.retrieve_url_title("https://hello.com") == (
+        "hello",
+        "https://hello.com",
+    )

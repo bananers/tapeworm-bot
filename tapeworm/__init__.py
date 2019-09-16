@@ -18,10 +18,12 @@ class StackDriverJsonFormatter(jsonlogger.JsonFormatter):
         return super(StackDriverJsonFormatter, self).process_log_record(log_record)
 
 
-def setup_logging(level=logging.INFO):
+def setup_logging(env, level=logging.INFO):
     handler = logging.StreamHandler()
-    formatter = StackDriverJsonFormatter("(name) (levelname) (message)")
-    handler.setFormatter(formatter)
+
+    if env != "dev":
+        formatter = StackDriverJsonFormatter("(name) (levelname) (message)")
+        handler.setFormatter(formatter)
 
     root_logger = logging.getLogger()
     root_logger.addHandler(handler)
@@ -35,7 +37,7 @@ class CustomJSONEncoder(JSONEncoder):
         return super().default(o)
 
 
-def create_app(test_config=None):
+def create_app(env, test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.json_encoder = CustomJSONEncoder
     app.config.from_mapping(
@@ -49,8 +51,7 @@ def create_app(test_config=None):
     else:
         app.config.update(test_config)
 
-    if not app.testing:
-        setup_logging(logging.DEBUG)
+    setup_logging(env, logging.DEBUG)
 
     app.config.update(TG_URL="https://api.telegram.org/bot" + app.config["TOKEN"] + "/")
     try:

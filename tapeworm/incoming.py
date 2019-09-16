@@ -77,11 +77,12 @@ class Incoming:
             skipped_urls = []
             for url in urls_in_message:
                 try:
+                    title, req_url = self.extractor.retrieve_url_title(url)
                     item_added = Links.from_dict(
                         {
-                            "link": url,
+                            "link": req_url,
                             "by": _get_author(data),
-                            "title": self.extractor.retrieve_url_title(url),
+                            "title": title,
                             "date": _get_message_date(data),
                         }
                     )

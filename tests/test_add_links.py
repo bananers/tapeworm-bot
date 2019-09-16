@@ -23,7 +23,10 @@ def test_link_added_when_message_contains_single_link(
         telegram_message_generator, message, entities
     )
 
-    incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
+    def side_effect(_args):
+        return faker.pystr(), faker.pystr()
+
+    incoming.extractor.retrieve_url_title.side_effect = side_effect
     incoming.handle_data(message_from_telegram)
 
     incoming.telegram.send_text_response.assert_called_once()
@@ -53,11 +56,16 @@ def test_link_added_when_message_contains_multiple_links(
         telegram_message_generator, message, entities
     )
 
-    incoming.extractor.retrieve_url_title.side_effect = faker.pystr()
+    def side_effect(_args):
+        return faker.pystr(), faker.pystr()
+
+    incoming.extractor.retrieve_url_title.side_effect = side_effect
     incoming.handle_data(message_from_telegram)
 
     incoming.telegram.send_text_response.assert_called_once()
-    assert len(incoming.db.links) == len(entities)
+    assert len(incoming.db.links) == len(
+        entities
+    ), "expecting db links to match number of entites"
 
 
 @pytest.mark.parametrize(

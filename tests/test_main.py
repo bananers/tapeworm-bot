@@ -2,8 +2,8 @@ from .context import tapeworm
 
 
 def test_config():
-    assert not tapeworm.create_app().testing
-    assert tapeworm.create_app({"TESTING": True}).testing
+    assert not tapeworm.create_app("not_test").testing
+    assert tapeworm.create_app("test", {"TESTING": True}).testing
 
 
 def test_hello(client):

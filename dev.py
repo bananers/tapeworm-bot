@@ -5,10 +5,11 @@ import threading
 import time
 import requests
 
+
 from tapeworm import create_app
 
 logger = logging.getLogger(__name__)
-app = create_app()
+app = create_app("dev")
 
 
 @app.before_first_request
