@@ -1,6 +1,6 @@
 .LinksWrapper {
     display: flex;
-    flex-direction: row
+    flex-direction: column
 }
 
 .Links--Control {

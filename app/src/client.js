@@ -8,12 +8,12 @@ const client = axios.create({
 })
 
 class APIClient {
-    links(size) {
-        if (!size) {
-            size = 10
+    links(limit) {
+        if (!limit) {
+            limit = 10
         }
         return this.do('get', '/links', {
-            params: { size: size }
+            params: { limit: limit }
         })
     }
 
