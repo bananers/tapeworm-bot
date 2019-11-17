@@ -1,0 +1,8 @@
+.LinksWrapper {
+    display: flex;
+    flex-direction: row
+}
+
+.Links--Control {
+    margin-top: 2em;
+}
