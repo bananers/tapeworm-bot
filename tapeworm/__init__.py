@@ -4,7 +4,7 @@ import datetime
 import flask_injector
 from injector import inject
 
-from flask import Flask, g
+from flask import Flask, g, send_from_directory
 from flask.json import JSONEncoder
 from pythonjsonlogger import jsonlogger
 
@@ -38,7 +38,9 @@ class CustomJSONEncoder(JSONEncoder):
 
 
 def create_app(env, test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(
+        __name__, instance_relative_config=True, static_folder="../app/build/static"
+    )
     app.json_encoder = CustomJSONEncoder
     app.config.from_mapping(
         TOKEN="<default token, override me>",
@@ -62,7 +64,7 @@ def create_app(env, test_config=None):
     # pylint: disable=unused-variable
     @app.route("/")
     def hello():
-        return "ok"
+        return send_from_directory("../app/build", "index.html")
 
     from tapeworm import tapeworm
     from tapeworm import api
