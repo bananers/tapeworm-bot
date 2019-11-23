@@ -2,60 +2,35 @@ tapeworm is a telegram bot that sits in a chat group silently gobbling up intere
 
 # Requirements
 
-Before you can start, you will need to create a sandbox constraining the version to python 3.7. Shown below is an example of creating an environment constrained to Python 3.7.
+You'll need to create a virtualenv based on Python 3.7
 
-`conda create -n environment-name python=3.7`
-
-This project uses a requirement.txt to store dependencies since AppEngine doesn't support the new Pipfile format. Shown below is the command you can use.
-
-1. `pip install -r requirements/requirements-dev.txt`
-2. Install Google Cloud SDK [here](https://cloud.google.com/sdk/)
-3. You can skip the other steps that initialize a gcloud project
-
-# Emulators
-
-Since this bot uses Cloud Datastore, you'll have to run an emulator to simulate the database insertions. Otherwise, you'll not be able to test anything that has to do with a database [more info](https://cloud.google.com/datastore/docs/tools/datastore-emulator).
-
-**TL;DR**
-
-1. `gcloud components install cloud-datastore-emulator`
-2. `gcloud components install beta`
-3. `gcloud config set project random-name` You need to do this if you don't have an existing project
-4. `gcloud beta emulators datastore start`
-
-You'll then need to expose the environment variables to get the library to talk to the local datastore.
-
-This sets up your environment variables for local dev
-
-`gcloud beta emulators datastore env-init > set_vars.cmd && set_vars.cmd`
+1. `conda create -n environment-name python=3.7`
+2. `pip install -r requirements/dev.txt`
 
 # Developing
 
-## Configuration
+You'll need the following in `instance/config.py`:
 
-This project follows the Flask method for [instance folders](http://flask.pocoo.org/docs/1.0/config/#instance-folders) so you should create an instance folder in the project root and copy `config-example.py` into `instance/config.py` replacing the variables as necessary.
+1. `TOKEN` A Telegram API token [details here](https://core.telegram.org/bots#6-botfather)
+2. `WEBHOOK_URL_ID` A random string of characters
+3. `PROJECT_ID` Which is the associated Google Cloud project id
 
-The `bot` variable is the token that BotFather provided when registering the bot.
+Example:
 
-The `webhook_url_id` variable is a random string that Telegram calls when it receives new messages. The reason for this variable is to prevent external parties (not Telegram) from calling the API with rubbish values. However, an IP whitelist should be preferred atop of this.
+```py
+TOKEN = "<your token>"
+WEBHOOK_URL_ID = "22222"
+PROJECT_ID = "<your project id>"
+```
 
-The `project_id` variable is used to create the webhook URL that Telegram would call and since this project runs on AppEngine, the base URL used for assembling the webhook URL is `https://project_id.appspot.com`
+# Running the bot
 
-The two latter variables are only applicable when the program is run in AppEngine since it doesn't apply when you are developing locally since Telegram requires a HTTPS endpoint and a public domain for webhook URLs.
+For the API server
 
-Now that you have the prerequisite tooling installed, you can get started by viewing the [docs folder](https://github.com/bananers/tapeworm-bot/tree/master/docs)
+`nox -s run`
 
-## Running the bot
+For the frontend server
 
-1. `set_vars.cmd`
-2. `python main.py`
+`cd app && npm start`
 
-## Running tests
-
-If you just want to run all tests, you can do:
-
-`pytest tests`
-
-If you are using it for development and want tests to re-run automatically:
-
-`ptw tests`
+The API server will be running on http://localhost:8080, UI will be accessible via http://localhost:3000

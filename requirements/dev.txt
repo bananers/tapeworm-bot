@@ -3,3 +3,4 @@ ipython
 httpie
 pytest-watch
 pytest-sugar
+nox
