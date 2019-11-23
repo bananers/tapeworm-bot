@@ -21,3 +21,4 @@ __pycache__/
 
 .nox
 node_modules
+/app/node_modules
