@@ -18,7 +18,7 @@ install:
 
 script:
   - nox --non-interactive --session lint test
-  - (cd app && npm build)
+  - (cd app && npm run build)
 
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_89a54a178b1d_key -iv $encrypted_89a54a178b1d_iv -in instance.tar.enc -out instance.tar -d
