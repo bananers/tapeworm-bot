@@ -5,6 +5,7 @@ dist: xenial
 cache:
   directories:
     - "$HOME/.cache/pip"
+    - "$HOME/.npm"
     - "app/node_modules"
 
 before_install:
