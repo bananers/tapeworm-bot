@@ -19,6 +19,10 @@ def is_non_negative(number) -> bool:
     return number >= 0
 
 
+def error_response(message):
+    return jsonify({"error": message, "results": []})
+
+
 @bp.route("/links", methods=["GET"])
 def all_links(links: model_link.Links):
     limit: str = request.args.get("limit", "10") or "10"
@@ -26,16 +30,18 @@ def all_links(links: model_link.Links):
 
     limit, ok = is_number(limit, 10)
     if not ok:
-        return jsonify({"error": "limit is not a number"})
+        return error_response("limit is not a number")
 
     if not is_non_negative(limit):
-        return jsonify({"error": "limit cannot be negative"})
+        return error_response("limit cannot be negative")
 
     offset, ok = is_number(offset, 0)
     if not ok:
-        return jsonify({"error": "offset is not a number"})
+        return error_response("offset is not a number")
 
     if not is_non_negative(offset):
-        return jsonify({"error": "offset cannot be negative"})
+        return error_response("offset cannot be negative")
 
-    return jsonify([x._asdict() for x in links.list_links(limit=limit, offset=offset)])
+    return jsonify(
+        {"results": [x._asdict() for x in links.list_links(limit=limit, offset=offset)]}
+    )

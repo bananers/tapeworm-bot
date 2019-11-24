@@ -3,45 +3,42 @@ import moment from 'moment'
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { List, Form, Header, Divider } from 'semantic-ui-react'
 
-import APIClient from './client'
-
 import './Links.css'
 
 class Links extends React.Component {
-    constructor() {
+    constructor(props) {
         super()
+        this.linksAPI = limit => props.apiClient.links(limit)
+        this.debouncedLinksAPI = AwesomeDebouncePromise(this.linksAPI, 500)
+
         this.state = {
             limit: 10,
-            links: []
+            links: [],
+            fetching: true,
         }
 
         this.handleLimitChanged = this.handleLimitChanged.bind(this)
     }
 
-    fetchLinks() {
-        this.setState({fetching: true})
-        this.apiClient.links(this.state.limit).then((data) =>
-            this.setState({...this.state, links: data, fetching: false})
-        )
+    async fetchLinks() {
+        return this.linksAPI(this.state.limit)
     }
 
     async componentDidMount() {
-        this.apiClient = new APIClient()
-        this.handleLimitChangedDebounced = AwesomeDebouncePromise(() => {
-            this.fetchLinks()
-        }, 500).bind(this)
-        this.fetchLinks()
+        const results = await this.fetchLinks()
+        this.setState({...this.state, links: results.results, fetching: false})
     }
 
     handleLimitChanged = async e => {
         let limit = e.target.value
-        this.setState({ limit: limit })
-        const result = await this.handleLimitChangedDebounced(limit)
-        this.setState({ links: result })
+        this.setState({ limit: limit, fetching: true, links: [] })
+        const result = await this.debouncedLinksAPI(limit)
+
+        this.setState({ ...this.state, links: result.results, fetching: false})
     }
 
     renderLinks(links) {
-        if (!links) {
+        if (links.length === 0) {
             return (<h1>No links :(</h1>)
         }
 
@@ -79,12 +76,15 @@ class Links extends React.Component {
                     <Form>
                     <Form.Group inline>
                         <label><Header as='h3'>HOW MANY ITEMS TO SHOW</Header></label>
-                        <Form.Input size='mini' type="text" name="items_to_show" onChange={this.handleLimitChanged}/> 
+                        <Form.Input size='mini' type="text" name="items_to_show" onChange={this.handleLimitChanged}/>
                     </Form.Group>
                     </Form>
                     <Divider />
                 </div>
-                { this.state.fetching ? "Fetching links..." : this.renderLinks(this.state.links)}
+                { this.state.fetching
+                    ? "Fetching links..."
+                    : this.renderLinks(this.state.links)
+                }
             </div>
         )
     }

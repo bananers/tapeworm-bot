@@ -1,8 +1,11 @@
 import React from 'react';
 import './App.css';
+import APIClient from './client'
 import Links from './Links';
 import logo from './images/tapeworm-icon.png'
 import { Header, Container, Image } from 'semantic-ui-react'
+
+const apiClient = new APIClient()
 
 function App(props) {
   return (
@@ -16,7 +19,7 @@ function App(props) {
         </Header.Content>
       </Header>
 
-      <Links />
+      <Links apiClient={apiClient} />
 
       </Container>
     </div>
