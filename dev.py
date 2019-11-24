@@ -9,7 +9,7 @@ import requests
 from tapeworm import create_app
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 app = create_app("dev")
 
 
@@ -29,7 +29,7 @@ def start_update_timer():
                 logger.debug("You need to remove the pre-existing webhook from the bot")
             else:
                 body = res.json()
-
+                logger.info("%s", body)
                 if body["ok"] and body["result"]:
                     update_ids = []
                     for update in body["result"]:
