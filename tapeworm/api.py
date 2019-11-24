@@ -45,3 +45,8 @@ def all_links(links: model_link.Links):
     return jsonify(
         {"results": [x._asdict() for x in links.list_links(limit=limit, offset=offset)]}
     )
+
+
+@bp.route("/ping", methods=["GET"])
+def ping():
+    return "pong"
