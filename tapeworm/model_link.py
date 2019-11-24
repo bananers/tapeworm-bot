@@ -19,11 +19,16 @@ class Links:
         if isinstance(entity, list):
             entity = entity.pop()
 
+        by_username = entity["by"]
+        if "by_username" in entity:
+            by_username = entity["by_username"]
+
         return Link(
             id=entity.key.id,
             link=entity["link"],
             title=entity["title"],
             by=entity["by"],
+            by_username=by_username,
             date=entity["date"],
         )
 
@@ -43,6 +48,7 @@ class Links:
             link=data["link"],
             title=data["title"],
             by=data["by"],
+            by_username=data["by_username"],
             date=data["date"],
         )
 

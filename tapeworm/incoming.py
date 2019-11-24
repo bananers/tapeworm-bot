@@ -81,7 +81,8 @@ class Incoming:
                     item_added = Links.from_dict(
                         {
                             "link": req_url,
-                            "by": _get_author(data),
+                            "by": _get_userid(data),
+                            "by_username": _get_username(data),
                             "title": title,
                             "date": _get_message_date(data),
                         }
@@ -140,7 +141,7 @@ def extract_links_from_message(message):
 
 def links_response(sender_chat_id, links, offset, limit):
     link_to_str = (
-        lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by}"
+        lambda index, link: f"{index}. <a href='{link.link}'>{link.title}</a> by {link.by_username}"
     )
     display_links = links[:limit]
     links_body = "\n".join(
@@ -257,8 +258,12 @@ def _get_message_id(data):
     return data["message"]["message_id"]
 
 
-def _get_author(data):
+def _get_userid(data):
     return data["message"]["from"]["id"]
+
+
+def _get_username(data):
+    return data["message"]["from"]["username"]
 
 
 def _get_message_date(data):
