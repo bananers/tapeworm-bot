@@ -110,11 +110,11 @@ def test_invalid_titles_have_response(incoming, telegram_message_generator):
 @pytest.mark.parametrize(
     "titles,expected",
     [
-        ([Link(None, None, "Hello", None, None)], "1. Hello"),
+        ([Link(None, None, "Hello", None, None, None)], "1. Hello"),
         (
             [
-                Link(None, None, "link1", None, None),
-                Link(None, None, "link2", None, None),
+                Link(None, None, "link1", None, None, None),
+                Link(None, None, "link2", None, None, None),
             ],
             "1. link1\n2. link2",
         ),
@@ -140,7 +140,7 @@ def test_link_response_for_skipped_links_response(faker, skipped_urls, expected)
     "added,skipped,expected",
     [
         (
-            [Link(None, None, "link1", None, None)],
+            [Link(None, None, "link1", None, None, None)],
             ["link2"],
             """<b>Links added</b>
 1. link1

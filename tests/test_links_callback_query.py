@@ -20,7 +20,9 @@ def test_valid_links_query_format(cq_data, incoming, telegram_callback_query_gen
     data = telegram_callback_query_with_data(
         telegram_callback_query_generator(), cq_data
     )
-    incoming.db.create_multi([Link(1, "www.test.com", "Test", "henlo", None)] * 6)
+    incoming.db.create_multi(
+        [Link(1, "www.test.com", "Test", "henlo", "henlo", None)] * 6
+    )
     incoming.handle_data(data)
 
     incoming.telegram.answer_callback_query.assert_called_once()

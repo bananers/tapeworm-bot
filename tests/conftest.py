@@ -76,7 +76,7 @@ def telegram_message_generator():
                 "message_id": faker.pyint(),
                 "chat": {"id": faker.pyint()},
                 "text": faker.pystr(),
-                "from": {"id": faker.pyint()},
+                "from": {"id": faker.pyint(), "username": faker.pystr()},
                 "date": int(faker.date_time().timestamp()),
             }
         }

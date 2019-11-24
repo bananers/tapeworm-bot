@@ -24,7 +24,12 @@ def test_should_inform_when_no_links(incoming, telegram_message_generator):
 
 def create_fake_link(faker) -> Link:
     return Link(
-        faker.pyint(), faker.pystr(), faker.pystr(), faker.pyint(), faker.date_time()
+        faker.pyint(),
+        faker.pystr(),
+        faker.pystr(),
+        faker.pyint(),
+        faker.pystr(),
+        faker.date_time(),
     )
 
 
@@ -42,7 +47,7 @@ def test_should_display_one_link(incoming, telegram_message_generator, faker):
     assert res["payload"]["chat_id"] == _get_chat_id(message)
     assert (
         res["payload"]["text"]
-        == f"1. <a href='{link.link}'>{link.title}</a> by {link.by}"
+        == f"1. <a href='{link.link}'>{link.title}</a> by {link.by_username}"
     )
 
 
@@ -62,14 +67,14 @@ def test_should_display_maximally_10_links(incoming, telegram_message_generator,
     [
         ([], "No links found"),
         (
-            [Link(1, "www.test.com", "Test", "henlo", None)],
+            [Link(1, "www.test.com", "Test", "123", "henlo", None)],
             "1. <a href='www.test.com'>Test</a> by henlo",
         ),
         (
             [
-                Link(1, "www.test.com", "Test", "henlo", None),
-                Link(1, "www.test.com", "Test", "henlo", None),
-                Link(1, "www.test.com", "Test", "henlo", None),
+                Link(1, "www.test.com", "Test", "henlo", "henlo", None),
+                Link(1, "www.test.com", "Test", "henlo", "henlo", None),
+                Link(1, "www.test.com", "Test", "henlo", "henlo", None),
             ],
             "1. <a href='www.test.com'>Test</a> by henlo"
             + "\n"
@@ -124,7 +129,10 @@ def test_links_response_should_include_pagination_indicator(faker):
     limit = 10
 
     res = links_response(
-        faker.pyint(), [Link(1, "www.test.com", "Test", "henlo", None)], offset, limit
+        faker.pyint(),
+        [Link(1, "www.test.com", "Test", "henlo", "henlo", None)],
+        offset,
+        limit,
     )
     markup = json.loads(res["reply_markup"])
 
