@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { List, Segment, Form, Header, Divider } from 'semantic-ui-react'
+import { List, Form, Header, Divider } from 'semantic-ui-react'
 
 import APIClient from './client'
 
@@ -47,18 +47,17 @@ class Links extends React.Component {
 
         let linkItems = links.map((link) => {
             let createdRelative = moment(link.date)
-            const userdict = {'304134872': 'Xing Jie', '46800306': 'Sheng Wei'}
             return (
                 <div key={link.id} className="LinksItem" style={{padding: "8px"}}>
                 <List.Item>
                     <List.Content>
-                        <List.Header as='a'>
+                        <List.Header>
                             <a href={link.link} rel={link.link} style={{fontSize: "20px"}}>
                                 {link.title}
                             </a>
                         </List.Header>
                         <List.Description>
-                            By {userdict[link.by]} {createdRelative.fromNow()} <b title={createdRelative.format()}> </b>
+                            By {link.by} {createdRelative.fromNow()} <b title={createdRelative.format()}> </b>
                         </List.Description>
                     </List.Content>
                 </List.Item>

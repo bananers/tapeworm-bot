@@ -9,8 +9,8 @@ function App(props) {
 
       <Container>
       <Header size='huge'>
-        <Image circular src='/images/tapeworm-icon.png'  size='massive'/>
-        <Header.Content>
+        <Image circular src='/images/tapeworm-icon.png'  size='massive' style={{marginTop: "40px"}}/>
+        <Header.Content style={{marginTop: "40px"}}>
           Links @ {props.url}
         </Header.Content>
       </Header>
