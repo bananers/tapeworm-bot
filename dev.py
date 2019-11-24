@@ -9,6 +9,7 @@ import requests
 from tapeworm import create_app
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 app = create_app("dev")
 
 
@@ -56,7 +57,7 @@ def start_runner():
                     logger.debug("Server started, quitting start_loop")
                     not_started = False
                 logger.debug("%d", r.status_code)
-            except:
+            except Exception:
                 logger.debug("Server not started yet")
             time.sleep(2)
 
@@ -68,8 +69,8 @@ def start_runner():
 
 if __name__ == "__main__":
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("werkzeug").setLevel(logging.WARNING)
-    app.logger.setLevel(logging.DEBUG)
+    logging.getLogger("werkzeug").setLevel(logging.INFO)
+    app.logger.setLevel(logging.INFO)
 
     start_runner()
     app.run(host="127.0.0.1", port=8080, debug=True, use_debugger=True)
