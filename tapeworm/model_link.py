@@ -1,12 +1,7 @@
 from collections import namedtuple
 from google.cloud import datastore
 
-Link = namedtuple("Link", ["id", "link", "title", "by", "date"])
-
-
-class LUL:
-    def __init__(self, ds):
-        self.ds = ds
+Link = namedtuple("Link", ["id", "link", "title", "by", "by_username", "date"])
 
 
 class Links:
@@ -52,18 +47,6 @@ class Links:
             date=data["date"],
         )
 
-    def create(self, data):
-        if not isinstance(data, Link):
-            raise ValueError("data must be type of Link")
-
-        key = self.client.key("Link")
-
-        entity = datastore.Entity(key=key)
-        entity.update(data)
-        self.client.put(entity)
-
-        return self.from_datastore(entity)
-
     def create_multi(self, datas):
         if not isinstance(datas, list):
             raise ValueError("datas must be type of List containing Link")
@@ -71,7 +54,10 @@ class Links:
         with self.client.batch() as batch:
             for data in datas:
                 entity = datastore.Entity(key=self.client.key("Link"))
-                entity.update(data._asdict())
+                as_dict = data._asdict()
+                _ = as_dict.pop("id")
+
+                entity.update(as_dict)
                 batch.put(entity)
                 yield self.from_datastore(entity)
 
