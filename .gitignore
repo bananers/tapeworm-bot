@@ -134,4 +134,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# node modules
+node_modules
+
 # End of https://www.gitignore.io/api/python,appengine

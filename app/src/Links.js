@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import { List, Segment, Form, Header, Divider } from 'semantic-ui-react'
 
 import APIClient from './client'
 
@@ -46,21 +47,29 @@ class Links extends React.Component {
 
         let linkItems = links.map((link) => {
             let createdRelative = moment(link.date)
+            const userdict = {'304134872': 'Xing Jie', '46800306': 'Sheng Wei'}
             return (
-                <div key={link.id} className="LinksItem">
-                    <span>
-                    <a href={link.link} rel={link.link}>
-                        {link.title}
-                    </a>
-                    </span>
-                    <span> by {link.by}</span>
-                    <b title={createdRelative.format()}> {createdRelative.fromNow()}</b>
+                <div key={link.id} className="LinksItem" style={{padding: "8px"}}>
+                <List.Item>
+                    <List.Content>
+                        <List.Header as='a'>
+                            <a href={link.link} rel={link.link} style={{fontSize: "20px"}}>
+                                {link.title}
+                            </a>
+                        </List.Header>
+                        <List.Description>
+                            By {userdict[link.by]} {createdRelative.fromNow()} <b title={createdRelative.format()}> </b>
+                        </List.Description>
+                    </List.Content>
+                </List.Item>
                 </div>
             )
         })
         return (
-            <div className="LinksWrapper">
-                {linkItems}
+            <div>
+                <List divided relaxed>
+                    {linkItems}
+                </List>
             </div>
         )
     }
@@ -68,14 +77,14 @@ class Links extends React.Component {
         return (
             <div className="Links">
                 <div className="Links--Control">
-                    <form>
-                        <label>
-                            HOW MANY ITEMS TO SHOW
-                            <input type="text" name="items_to_show" onChange={this.handleLimitChanged} />
-                        </label>
-                    </form>
+                    <Form>
+                    <Form.Group inline>
+                        <label><Header as='h3'>HOW MANY ITEMS TO SHOW</Header></label>
+                        <Form.Input size='mini' type="text" name="items_to_show" onChange={this.handleLimitChanged}/> 
+                    </Form.Group>
+                    </Form>
+                    <Divider />
                 </div>
-                <h1>Links</h1>
                 { this.state.fetching ? "Fetching links..." : this.renderLinks(this.state.links)}
             </div>
         )
