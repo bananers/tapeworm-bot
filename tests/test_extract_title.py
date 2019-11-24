@@ -19,6 +19,7 @@ import tapeworm.services as services
             "test",
         ),
         ("<html><header><title>😊😊😁😁🎉🎉🎁🎁✔😃🎂</title></header></html>", "😊😊😁😁🎉🎉🎁🎁✔😃🎂"),
+        ("", None),
     ],
 )
 def test_extract_title(extractor, body, expected):
@@ -53,7 +54,7 @@ def test_retrieve_title_when_title_does_not_exist(mocker, extractor):
     mocker.patch.object(extractor, "download_url_body")
     extractor.download_url_body.return_value = ("<html></html>", "http://hello.com")
 
-    assert extractor.retrieve_url_title(url) == url
+    assert extractor.retrieve_url_title(url) == (url, url)
 
 
 def test_schema_is_filled_if_missing(mocker, extractor):

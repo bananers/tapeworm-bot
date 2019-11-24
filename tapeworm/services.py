@@ -35,7 +35,7 @@ class TitleExtractor:
             (body, req_url) = self.download_url_body(new_url)
             title = self.extract_title(body)
             if title is None:
-                return req_url
+                return (req_url, req_url)
             return (title, req_url)
         except requests.exceptions.HTTPError:
             raise UnableToObtainTitleError
