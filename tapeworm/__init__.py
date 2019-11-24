@@ -63,8 +63,12 @@ def create_app(env, test_config=None):
 
     # pylint: disable=unused-variable
     @app.route("/")
-    def hello():
+    def root():
         return send_from_directory("../app/build", "index.html")
+
+    @app.route("/<path:path>")
+    def other_files(path):
+        return send_from_directory("../app/build", path)
 
     from tapeworm import tapeworm
     from tapeworm import api
