@@ -22,7 +22,8 @@ class TitleExtractor:
         )
         res = requests.get(url, headers={"User-Agent": user_agent})
         res.raise_for_status()
-
+        if res.headers["Content-Type"] == "application/pdf":
+            res.encoding = "utf-8"
         return (res.text, res.url)
 
     def retrieve_url_title(self, url) -> (str, str):

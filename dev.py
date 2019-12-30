@@ -70,6 +70,7 @@ def start_runner():
 if __name__ == "__main__":
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("werkzeug").setLevel(logging.INFO)
+    logging.getLogger("chardet").setLevel(logging.INFO)
     app.logger.setLevel(logging.INFO)
 
     start_runner()
