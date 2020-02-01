@@ -1,5 +1,10 @@
 py_binary(
-  name="run",
-  srcs=["main.py"],
-  main="main.py",
- )
+    name = "run",
+    srcs = ["main.py"],
+    main = "main.py",
+)
+
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/jaxsax/project
+gazelle(name = "gazelle")
