@@ -20,4 +20,30 @@ func main() {
 
 	bot.Debug = true
 	log.Printf("Authorized on account %s", bot.Self.UserName)
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	updates, err := bot.GetUpdatesChan(u)
+	if err != nil {
+		log.Fatalf("failed to retrieve updates chan: %+v\n", err)
+	}
+
+	messageHandler := &MessageHandler{}
+
+	for update := range updates {
+		if update.Message == nil {
+			continue
+		}
+
+		message := update.Message
+
+		action, reply := messageHandler.process(*message)
+		if action == ActionReply {
+			_, err := bot.Send(reply)
+			if err != nil {
+				log.Printf("failed to reply to %v: %+v\n", message.Text, err)
+			}
+		}
+	}
 }
