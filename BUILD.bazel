@@ -6,5 +6,5 @@ py_binary(
 
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/jaxsax/project
+# gazelle:prefix github.com/bananers/tapeworm-bot
 gazelle(name = "gazelle")
